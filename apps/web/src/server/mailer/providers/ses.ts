@@ -1,4 +1,5 @@
 import { SendEmailCommand } from "@aws-sdk/client-sesv2";
+import type { SentMessageInfo } from "nodemailer";
 import type { MailerSendOptions, MailerTransport } from "./types";
 
 interface SesSender {
@@ -7,7 +8,7 @@ interface SesSender {
 
 interface SesMailerConfig {
   getSesClient: (region: string) => SesSender;
-  createTransport: (opts: { streamTransport: boolean }) => {
+  createTransport: (opts: { streamTransport: true }) => {
     sendMail: (mail: {
       from: string;
       to: string;
@@ -15,7 +16,7 @@ interface SesMailerConfig {
       text: string;
       html: string;
       replyTo?: string;
-    }) => Promise<{ message: AsyncIterable<Buffer | string> }>;
+    }) => Promise<SentMessageInfo>;
   };
   region: string;
   fromDefault?: string;
@@ -37,7 +38,7 @@ export class SesMailerTransport implements MailerTransport {
       throw new Error("FROM_EMAIL is required for mailer");
     }
 
-    const { message } = await this.cfg
+    const { message }: { message: AsyncIterable<Buffer | string> } = await this.cfg
       .createTransport({ streamTransport: true })
       .sendMail({ from, to, subject, text, html, replyTo });
 

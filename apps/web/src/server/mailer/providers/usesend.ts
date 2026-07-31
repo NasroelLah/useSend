@@ -2,7 +2,7 @@ import type { MailerSendOptions, MailerTransport } from "./types";
 
 interface UseSendSendResponse {
   data?: unknown;
-  error?: { code?: string; message?: string };
+  error?: { code?: string; message?: string } | null;
 }
 
 interface UseSendMailerConfig {
