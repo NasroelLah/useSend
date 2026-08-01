@@ -1,7 +1,11 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useCallback } from "react";
 import { api } from "~/trpc/react";
+import {
+  getActiveTeamIdFromDocument,
+  setActiveTeamIdCookie,
+} from "~/utils/active-team";
 
 // Define the Team type based on the Prisma schema
 type Team = {
@@ -20,14 +24,31 @@ interface TeamContextType {
   isLoading: boolean;
   currentRole: "ADMIN" | "MEMBER";
   currentIsAdmin: boolean;
+  setActiveTeam: (teamId: number) => void;
 }
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
 
 export function TeamProvider({ children }: { children: React.ReactNode }) {
   const { data: teams, status } = api.team.getTeams.useQuery();
+  const utils = api.useUtils();
 
-  const currentTeam = teams?.[0] ?? null;
+  // Resolve active team from cookie, falling back to the first team.
+  // Keeps client and server (teamProcedure) on the same team.
+  const activeTeamId =
+    typeof window !== "undefined" ? getActiveTeamIdFromDocument() : null;
+  const currentTeam =
+    teams?.find((t) => t.id === activeTeamId) ?? teams?.[0] ?? null;
+
+  const setActiveTeam = useCallback(
+    (teamId: number) => {
+      setActiveTeamIdCookie(teamId);
+      // Invalidate everything so all team-scoped queries refetch
+      // against the newly selected team.
+      utils.invalidate();
+    },
+    [utils],
+  );
 
   const value = {
     currentTeam,
@@ -35,6 +56,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
     isLoading: status === "pending",
     currentRole: currentTeam?.teamUsers[0]?.role ?? "MEMBER",
     currentIsAdmin: currentTeam?.teamUsers[0]?.role === "ADMIN",
+    setActiveTeam,
   };
 
   return <TeamContext.Provider value={value}>{children}</TeamContext.Provider>;

@@ -15,6 +15,7 @@ import { env } from "~/env";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { getChildLogger, logger, withLogger } from "../logger/log";
+import { getActiveTeamIdFromHeaders } from "~/utils/active-team";
 import { randomUUID } from "crypto";
 
 /**
@@ -125,10 +126,24 @@ export const protectedProcedure = authedProcedure.use(({ ctx, next }) => {
 });
 
 export const teamProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  const teamUser = await db.teamUser.findFirst({
-    where: { userId: ctx.session.user.id },
-    include: { team: true },
-  });
+  const userId = ctx.session.user.id;
+  const activeTeamId = getActiveTeamIdFromHeaders(ctx.headers);
+
+  // Resolve the active team from the cookie, verifying membership.
+  // Fall back to the user's first team when no valid selection exists.
+  const teamUser = activeTeamId
+    ? ((await db.teamUser.findUnique({
+        where: { teamId_userId: { teamId: activeTeamId, userId } },
+        include: { team: true },
+      })) ??
+      (await db.teamUser.findFirst({
+        where: { userId },
+        include: { team: true },
+      })))
+    : await db.teamUser.findFirst({
+        where: { userId },
+        include: { team: true },
+      });
 
   if (!teamUser) {
     throw new TRPCError({ code: "NOT_FOUND", message: "Team not found" });
