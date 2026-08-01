@@ -1,8 +1,12 @@
 import { env } from "~/env";
 import { db } from "~/server/db";
 import { logger } from "~/server/logger/log";
-import { parseSesHook, SesHookParser } from "~/server/service/ses-hook-parser";
+import { SesHookParser } from "~/server/service/ses-hook-parser";
 import { SesSettingsService } from "~/server/service/ses-settings-service";
+import {
+  assertSafeSubscribeUrl,
+  verifySnsMessage,
+} from "~/server/service/sns-verifier";
 import { SnsNotificationMessage } from "~/types/aws-types";
 
 export const dynamic = "force-dynamic";
@@ -14,24 +18,19 @@ export async function GET() {
 export async function POST(req: Request) {
   const data = await req.json();
 
-  console.log(data, data.Message);
-
   const isEventValid = await checkEventValidity(data);
 
-  console.log("Is event valid: ", isEventValid);
-
   if (!isEventValid) {
-    return Response.json({ data: "Event is not valid" });
+    logger.warn({ type: data?.Type }, "Rejected invalid SNS event");
+    return Response.json({ data: "Event is not valid" }, { status: 403 });
   }
 
   if (data.Type === "SubscriptionConfirmation") {
     return handleSubscription(data);
   }
 
-  let message = null;
-
   try {
-    message = JSON.parse(data.Message || "{}");
+    const message = JSON.parse(data.Message || "{}");
     const status = await SesHookParser.queue({
       event: message,
       messageId: data.MessageId,
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
 
     return Response.json({ data: "Success" });
   } catch (e) {
-    console.error(e);
+    logger.error({ err: e }, "Error parsing SES hook");
     return Response.json({ data: "Error is parsing hook" });
   }
 }
@@ -51,8 +50,17 @@ export async function POST(req: Request) {
  * Handles the subscription confirmation event. called only once for a webhook
  */
 async function handleSubscription(message: any) {
-  await fetch(message.SubscribeURL, {
+  let subscribeUrl: string;
+  try {
+    subscribeUrl = assertSafeSubscribeUrl(message.SubscribeURL);
+  } catch (e) {
+    logger.warn({ err: e }, "Rejected unsafe SubscribeURL");
+    return Response.json({ data: "Invalid SubscribeURL" }, { status: 400 });
+  }
+
+  await fetch(subscribeUrl, {
     method: "GET",
+    signal: AbortSignal.timeout(5000),
   });
 
   const topicArn = message.TopicArn as string;
@@ -81,11 +89,18 @@ async function handleSubscription(message: any) {
 }
 
 /**
- * A simple check to ensure that the event is from the correct topic
+ * Verifies the SNS message signature, then confirms the topic is one we
+ * configured. In development the signature check is skipped so local
+ * testing with hand-crafted payloads still works.
  */
 async function checkEventValidity(message: SnsNotificationMessage) {
-  if (env.NODE_ENV === "development") {
-    return true;
+  if (env.NODE_ENV !== "development") {
+    const authentic = await verifySnsMessage(
+      message as unknown as Record<string, string>
+    );
+    if (!authentic) {
+      return false;
+    }
   }
 
   const { TopicArn } = message;

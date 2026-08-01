@@ -267,7 +267,8 @@ model Email {
   emailEvents  EmailEvent[]
 
   @@index([campaignId, contactId])
-  @@index([createdAt(sort: Desc)])
+  @@index([teamId, createdAt(sort: Desc)])
+  @@index([teamId, latestStatus])
 }
 
 model CampaignEmail {
@@ -277,6 +278,7 @@ model CampaignEmail {
   createdAt  DateTime @default(now())
 
   @@id([campaignId, contactId])
+  @@index([emailId])
 }
 
 model EmailEvent {
