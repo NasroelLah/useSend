@@ -105,6 +105,23 @@ export default function LoginPage({
       }
 
       setEmailStatus("success");
+
+      // Dev mode: auto-fetch OTP from server
+      if (process.env.NODE_ENV === "development") {
+        try {
+          const res = await fetch(
+            `/api/dev/otp?email=${encodeURIComponent(values.email.toLowerCase())}`,
+          );
+          if (res.ok) {
+            const data = await res.json();
+            if (data.otp) {
+              otpForm.setValue("otp", data.otp);
+            }
+          }
+        } catch {
+          // Silently fail - user can still check logs
+        }
+      }
     } catch {
       setEmailStatus("idle");
       emailForm.setError(
@@ -219,6 +236,11 @@ export default function LoginPage({
                   <p className=" w-[350px] text-center text-sm">
                     We have sent an email with the OTP. Please check your inbox
                   </p>
+                  {process.env.NODE_ENV === "development" && (
+                    <p className="w-[350px] text-center text-xs text-muted-foreground">
+                      Dev mode: OTP auto-filled from server logs
+                    </p>
+                  )}
                   <Form {...otpForm}>
                     <form
                       onSubmit={otpForm.handleSubmit(onOTPSubmit)}
