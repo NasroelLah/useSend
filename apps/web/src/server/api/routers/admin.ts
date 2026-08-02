@@ -324,7 +324,7 @@ export const adminRouter = createTRPCRouter({
     .input(
       z.object({
         query: z
-          .string({ required_error: "Search query is required" })
+          .string({ message: "Search query is required" })
           .trim()
           .min(1, "Search query is required"),
       }),

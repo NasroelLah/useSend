@@ -13,13 +13,13 @@ export const emailSchema = z
     templateId: z.string().optional().openapi({
       description: "ID of a template from the dashboard",
     }),
-    variables: z.record(z.string()).optional(),
+    variables: z.record(z.string(), z.string()).optional(),
     replyTo: z.string().or(z.array(z.string())).optional(),
     cc: z.string().or(z.array(z.string())).optional(),
     bcc: z.string().or(z.array(z.string())).optional(),
     text: z.string().min(1).optional().nullable(),
-    html: z.coerce.string().min(1).optional().nullable(),
-    headers: z.record(z.string().min(1)).optional().openapi({
+    html: z.string().min(1).optional().nullable(),
+    headers: z.record(z.string(), z.string().min(1)).optional().openapi({
       description: "Custom headers to included with the emails",
     }),
     attachments: z

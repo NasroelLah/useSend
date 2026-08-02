@@ -27,7 +27,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 
 const searchSchema = z.object({
   email: z
-    .string({ required_error: "Email is required" })
+    .string({ message: "Email is required" })
     .trim()
     .email("Enter a valid email address"),
 });

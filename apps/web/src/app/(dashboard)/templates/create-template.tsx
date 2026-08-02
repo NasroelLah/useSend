@@ -29,10 +29,10 @@ import { useRouter } from "next/navigation";
 import Spinner from "@usesend/ui/src/spinner";
 
 const templateSchema = z.object({
-  name: z.string({ required_error: "Name is required" }).min(1, {
+  name: z.string({ message: "Name is required" }).min(1, {
     message: "Name is required",
   }),
-  subject: z.string({ required_error: "Subject is required" }).min(1, {
+  subject: z.string({ message: "Subject is required" }).min(1, {
     message: "Subject is required",
   }),
 });
