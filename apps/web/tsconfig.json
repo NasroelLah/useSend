@@ -3,7 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "@prisma/client": ["./src/generated/prisma"],
+      "@prisma/client/runtime/library": ["./src/generated/prisma/runtime/library"]
     },
     "plugins": [
       {
