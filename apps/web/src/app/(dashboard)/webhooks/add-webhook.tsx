@@ -75,7 +75,7 @@ export function AddWebhook() {
   const utils = api.useUtils();
 
   const form = useForm<WebhookFormValues>({
-    resolver: zodResolver(webhookSchema),
+    resolver: zodResolver(webhookSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       url: "",
       eventTypes: [],

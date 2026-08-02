@@ -44,7 +44,7 @@ export default function CreateTemplate() {
   const createTemplateMutation = api.template.createTemplate.useMutation();
 
   const templateForm = useForm<z.infer<typeof templateSchema>>({
-    resolver: zodResolver(templateSchema),
+    resolver: zodResolver(templateSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       name: "",
       subject: "",

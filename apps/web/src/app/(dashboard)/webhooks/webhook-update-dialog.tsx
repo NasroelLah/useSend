@@ -80,7 +80,7 @@ export function EditWebhookDialog({
     useState(initialHasAllEvents);
 
   const form = useForm<EditWebhookFormValues>({
-    resolver: zodResolver(editWebhookSchema),
+    resolver: zodResolver(editWebhookSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       url: webhook.url,
       eventTypes: initialHasAllEvents

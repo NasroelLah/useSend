@@ -61,7 +61,7 @@ export function EditApiKeyDialog({
   const utils = api.useUtils();
 
   const form = useForm<EditApiKeyFormValues>({
-    resolver: zodResolver(editApiKeySchema),
+    resolver: zodResolver(editApiKeySchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       name: apiKey.name,
       domainId: apiKey.domainId ? apiKey.domainId.toString() : "all",

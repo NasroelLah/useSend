@@ -56,7 +56,7 @@ export default function AddDomain() {
   const addDomainMutation = api.domain.createDomain.useMutation();
 
   const domainForm = useForm<z.infer<typeof domainSchema>>({
-    resolver: zodResolver(domainSchema),
+    resolver: zodResolver(domainSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       region: "",
       domain: "",

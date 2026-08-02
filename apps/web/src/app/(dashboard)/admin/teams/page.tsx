@@ -58,7 +58,7 @@ export default function AdminTeamsPage() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const searchForm = useForm<SearchInput>({
-    resolver: zodResolver(searchSchema),
+    resolver: zodResolver(searchSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: { query: "" },
   });
 

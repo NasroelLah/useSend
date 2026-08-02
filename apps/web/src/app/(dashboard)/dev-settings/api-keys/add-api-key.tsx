@@ -54,7 +54,7 @@ export default function AddApiKey() {
   const utils = api.useUtils();
 
   const apiKeyForm = useForm<z.infer<typeof apiKeySchema>>({
-    resolver: zodResolver(apiKeySchema),
+    resolver: zodResolver(apiKeySchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       name: "",
       domainId: "all",

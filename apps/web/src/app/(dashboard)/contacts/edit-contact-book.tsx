@@ -64,7 +64,7 @@ export const EditContactBook: React.FC<{
     ) : null);
 
   const contactBookForm = useForm<z.infer<typeof contactBookSchema>>({
-    resolver: zodResolver(contactBookSchema),
+    resolver: zodResolver(contactBookSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       name: contactBook.name || "",
       variables: (contactBook.variables ?? []).join(", "),

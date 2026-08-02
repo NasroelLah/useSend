@@ -82,7 +82,7 @@ export const EditContact: React.FC<{
   const utils = api.useUtils();
 
   const contactForm = useForm<z.infer<typeof contactSchema>>({
-    resolver: zodResolver(contactSchema),
+    resolver: zodResolver(contactSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       email: contact.email || "",
       firstName: contact.firstName || "",

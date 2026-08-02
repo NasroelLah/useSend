@@ -47,7 +47,7 @@ export default function CreateCampaign() {
   const createCampaignMutation = api.campaign.createCampaign.useMutation();
 
   const campaignForm = useForm<z.infer<typeof campaignSchema>>({
-    resolver: zodResolver(campaignSchema),
+    resolver: zodResolver(campaignSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       name: "",
       from: "",

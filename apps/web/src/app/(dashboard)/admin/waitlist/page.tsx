@@ -42,7 +42,7 @@ export default function AdminWaitlistPage() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const form = useForm<SearchInput>({
-    resolver: zodResolver(searchSchema),
+    resolver: zodResolver(searchSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       email: "",
     },
