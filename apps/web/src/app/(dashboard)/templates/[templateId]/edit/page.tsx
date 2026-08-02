@@ -12,6 +12,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
+import { Breadcrumbs } from "~/components/Breadcrumbs";
 const IMAGE_SIZE_LIMIT = 10 * 1024 * 1024;
 
 export default function EditTemplatePage({
@@ -119,9 +120,17 @@ function TemplateEditor({
   return (
     <div className="p-4 container mx-auto">
       <div className="mx-auto">
+        <div className="mx-auto mb-4 w-full sm:w-[700px]">
+          <Breadcrumbs
+            items={[
+              { label: "Templates", href: "/templates" },
+              { label: template.name || "Untitled template" },
+            ]}
+          />
+        </div>
         <div className="mb-4 flex justify-between items-center w-full sm:w-[700px] mx-auto">
           <div className="flex items-center gap-3">
-            <Link href="/templates">
+            <Link href="/templates" aria-label="Back to templates">
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <Input
@@ -165,10 +174,14 @@ function TemplateEditor({
 
         <div className="flex flex-col mt-4 mb-4 p-4 w-full sm:w-[700px] mx-auto z-50">
           <div className="flex items-center gap-4">
-            <label className="block text-sm  w-[80px] text-muted-foreground">
+            <label
+              htmlFor="template-subject"
+              className="block text-sm w-[80px] text-muted-foreground"
+            >
               Subject
             </label>
             <input
+              id="template-subject"
               type="text"
               value={subject}
               onChange={(e) => {
@@ -196,7 +209,7 @@ function TemplateEditor({
           </div>
         </div>
 
-        <div className=" rounded-lg bg-gray-50 w-full sm:w-[700px] mx-auto p-4 sm:p-10">
+        <div className="mx-auto w-full rounded-lg border bg-muted/40 p-4 sm:w-[700px] sm:p-10">
           <div className="w-full sm:w-[600px] mx-auto">
             <Editor
               initialContent={json}
