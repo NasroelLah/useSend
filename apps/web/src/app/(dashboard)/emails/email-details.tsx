@@ -7,8 +7,7 @@ import { EmailStatusBadge, EmailStatusIcon } from "./email-status-badge";
 import { formatDate } from "date-fns";
 import { motion } from "framer-motion";
 import { EmailStatus } from "@prisma/client";
-import type { Prisma } from "@prisma/client";
-type JsonValue = Prisma.JsonValue;
+import type { JsonValue } from "@prisma/client/runtime/client";
 import {
   SesBounce,
   SesClick,
