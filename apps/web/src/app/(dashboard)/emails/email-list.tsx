@@ -446,13 +446,17 @@ export default function EmailsList() {
         </DynamicSheetWithNoSSR>
       </div>
 
-      <DataPagination
-        page={pageNumber}
-        limit={emailsQuery.data?.limit ?? DEFAULT_QUERY_LIMIT}
-        totalCount={emailsQuery.data?.totalCount ?? 0}
-        onPageChange={(next) => setPage(next.toString())}
-        isLoading={emailsQuery.isLoading}
-      />
+      {/* Nothing to page through when the list is empty, and the empty state
+          already explains the situation. */}
+      {(emailsQuery.data?.totalCount ?? 0) > 0 ? (
+        <DataPagination
+          page={pageNumber}
+          limit={emailsQuery.data?.limit ?? DEFAULT_QUERY_LIMIT}
+          totalCount={emailsQuery.data?.totalCount ?? 0}
+          onPageChange={(next) => setPage(next.toString())}
+          isLoading={emailsQuery.isLoading}
+        />
+      ) : null}
     </div>
   );
 }

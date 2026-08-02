@@ -34,7 +34,10 @@ import {
   TooltipTrigger,
 } from "@usesend/ui/src/tooltip";
 import { UnsubscribeReason } from "@prisma/client";
-import { Download } from "lucide-react";
+import { Download, Users } from "lucide-react";
+import { EmptyState } from "~/components/EmptyState";
+import { TableSkeleton } from "~/components/TableSkeleton";
+import { DataPagination } from "~/components/DataPagination";
 
 function sanitizeFilename(
   name: string | undefined,
@@ -98,10 +101,13 @@ export default function ContactList({
           : undefined,
   });
 
+  const totalCount = contactsQuery.data?.totalCount ?? 0;
+  const hasFilters = Boolean(search || status);
+
   const debouncedSearch = useDebouncedCallback((value: string) => {
     setSearch(value || null);
     setPage("1");
-  }, 1000);
+  }, 400);
 
   const handleStatusChange = (val: string) => {
     setStatus(val === "All" ? null : val);
@@ -194,10 +200,14 @@ export default function ContactList({
         <div className="flex justify-between items-center">
           <div>
             <Input
+              // Remount when the query is cleared programmatically (e.g. the
+              // "Clear filters" action) so the visible text stays in sync.
+              key={search ?? "empty"}
               placeholder="Search by email or name"
               className="w-[350px] mr-4"
               defaultValue={search ?? ""}
               onChange={(e) => debouncedSearch(e.target.value)}
+              aria-label="Search contacts by email or name"
             />
           </div>
           <div className="flex gap-2">
@@ -247,14 +257,10 @@ export default function ContactList({
             </TableHeader>
             <TableBody>
               {contactsQuery.isLoading ? (
-                <TableRow className="h-32">
-                  <TableCell colSpan={4} className="text-center py-4">
-                    <Spinner
-                      className="w-6 h-6 mx-auto"
-                      innerSvgClass="stroke-primary"
-                    />
-                  </TableCell>
-                </TableRow>
+                <TableSkeleton
+                  columns={4}
+                  columnWidths={["w-56", "w-24", "w-24", "w-16"]}
+                />
               ) : contactsQuery.data?.contacts.length ? (
                 contactsQuery.data?.contacts.map((contact) => {
                   const isPendingConfirmation =
@@ -338,31 +344,48 @@ export default function ContactList({
                   );
                 })
               ) : (
-                <TableRow className="h-32">
-                  <TableCell colSpan={4} className="text-center py-4">
-                    No contacts found
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={4} className="p-0">
+                    <EmptyState
+                      icon={Users}
+                      title={
+                        hasFilters ? "No matching contacts" : "No contacts yet"
+                      }
+                      description={
+                        hasFilters
+                          ? "No contacts match the current search and status filter."
+                          : "Import contacts or add them individually to start sending campaigns."
+                      }
+                    >
+                      {hasFilters ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSearch(null);
+                            setStatus(null);
+                            setPage("1");
+                          }}
+                        >
+                          Clear filters
+                        </Button>
+                      ) : null}
+                    </EmptyState>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-        <div className="flex gap-4 justify-end">
-          <Button
-            size="sm"
-            onClick={() => setPage((pageNumber - 1).toString())}
-            disabled={pageNumber === 1}
-          >
-            Previous
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => setPage((pageNumber + 1).toString())}
-            disabled={pageNumber >= (contactsQuery.data?.totalPage ?? 0)}
-          >
-            Next
-          </Button>
-        </div>
+        {totalCount > 0 ? (
+          <DataPagination
+            page={pageNumber}
+            limit={contactsQuery.data?.limit ?? 30}
+            totalCount={totalCount}
+            isLoading={contactsQuery.isLoading}
+            onPageChange={(next) => setPage(next.toString())}
+          />
+        ) : null}
       </div>
     </TooltipProvider>
   );

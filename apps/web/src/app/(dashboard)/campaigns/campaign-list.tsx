@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import { useUrlState } from "~/hooks/useUrlState";
 import { Button } from "@usesend/ui/src/button";
-import Spinner from "@usesend/ui/src/spinner";
+import { Skeleton } from "@usesend/ui/src/skeleton";
 import { CampaignStatus } from "@prisma/client";
 import {
   Select,
@@ -12,19 +13,26 @@ import {
   SelectItem,
 } from "@usesend/ui/src/select";
 import { Input } from "@usesend/ui/src/input";
-import { Search } from "lucide-react";
+import { Search, Megaphone } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 import CampaignCard from "./campaign-card";
+import { EmptyState } from "~/components/EmptyState";
+import { DataPagination } from "~/components/DataPagination";
 
 export default function CampaignList() {
   const [page, setPage] = useUrlState("page", "1");
   const [status, setStatus] = useUrlState("status");
-  const [searchTerm, setSearchTerm] = useUrlState("search");
   const [search, setSearch] = useUrlState("search");
 
+  // Local mirror of the input so typing stays responsive. Previously both
+  // `searchTerm` and `search` pointed at the same "search" URL key, so every
+  // keystroke wrote the URL and the debounce below had no effect.
+  const [searchTerm, setSearchTerm] = useState(search ?? "");
+
   const debouncedSearch = useDebouncedCallback((value: string) => {
-    setSearch(value);
-  }, 1000);
+    setSearch(value || null);
+    setPage("1");
+  }, 400);
 
   const onSearch = (value: string) => {
     setSearchTerm(value);
@@ -32,6 +40,7 @@ export default function CampaignList() {
   };
 
   const pageNumber = Number(page);
+  const hasFilters = Boolean(search || status);
 
   const campaignsQuery = api.campaign.getCampaigns.useQuery(
     {
@@ -52,6 +61,8 @@ export default function CampaignList() {
       },
     }
   );
+
+  const totalCount = campaignsQuery.data?.totalCount ?? 0;
 
   return (
     <div className="mt-10 flex flex-col gap-4">
@@ -103,40 +114,53 @@ export default function CampaignList() {
       {/* Campaign cards */}
       <div className="flex flex-col gap-8">
         {campaignsQuery.isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner className="w-6 h-6" innerSvgClass="stroke-primary" />
+          <div className="flex flex-col gap-8" aria-live="polite">
+            <span className="sr-only">Loading campaigns</span>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 w-full rounded-xl" />
+            ))}
           </div>
         ) : campaignsQuery.data?.campaigns.length ? (
           campaignsQuery.data?.campaigns.map((campaign) => (
             <CampaignCard key={campaign.id} campaign={campaign} />
           ))
         ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            No campaigns found
-            {(search || status) && (
-              <div className="text-sm mt-2">
-                Try adjusting your search or filters
-              </div>
-            )}
-          </div>
+          <EmptyState
+            icon={Megaphone}
+            title={hasFilters ? "No matching campaigns" : "No campaigns yet"}
+            description={
+              hasFilters
+                ? "No campaigns match the current search and filters."
+                : "Create a campaign to send a broadcast to one of your contact books."
+            }
+            className="rounded-xl border border-dashed"
+          >
+            {hasFilters ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm("");
+                  setSearch(null);
+                  setStatus(null);
+                  setPage("1");
+                }}
+              >
+                Clear filters
+              </Button>
+            ) : null}
+          </EmptyState>
         )}
       </div>
-      <div className="flex gap-4 justify-end">
-        <Button
-          size="sm"
-          onClick={() => setPage((pageNumber - 1).toString())}
-          disabled={pageNumber === 1}
-        >
-          Previous
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => setPage((pageNumber + 1).toString())}
-          disabled={pageNumber >= (campaignsQuery.data?.totalPage ?? 0)}
-        >
-          Next
-        </Button>
-      </div>
+      {totalCount > 0 ? (
+        <DataPagination
+          page={pageNumber}
+          limit={campaignsQuery.data?.limit ?? 30}
+          totalCount={totalCount}
+          isLoading={campaignsQuery.isLoading}
+          onPageChange={(next) => setPage(next.toString())}
+        />
+      ) : null}
     </div>
   );
 }
