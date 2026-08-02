@@ -1,4 +1,5 @@
-import { BubbleMenu, BubbleMenuProps, isTextSelection } from "@tiptap/react";
+import { isTextSelection } from "@tiptap/react";
+import { BubbleMenu, type BubbleMenuProps } from "@tiptap/react/menus";
 import {
   AlignCenterIcon,
   AlignLeftIcon,
@@ -249,7 +250,7 @@ export function TextMenu(props: TextMenuProps) {
 
   const bubbleMenuProps: TextMenuProps = {
     ...props,
-    shouldShow: ({ editor, state, from, to }) => {
+    shouldShow: ({ editor, state, from, to }: { editor: any; state: any; from: number; to: number }) => {
       const { doc, selection } = state;
       const { empty } = selection;
 
@@ -276,10 +277,6 @@ export function TextMenu(props: TextMenuProps) {
       }
 
       return true;
-    },
-    tippyOptions: {
-      maxWidth: "100%",
-      moveTransition: "transform 0.15s ease-out",
     },
   };
 

@@ -33,7 +33,7 @@ import { toast } from "@usesend/ui/src/toaster";
 
 const editApiKeySchema = z.object({
   name: z
-    .string({ required_error: "Name is required" })
+    .string({ message: "Name is required" })
     .min(1, { message: "Name is required" }),
   domainId: z.string().optional(),
 });
@@ -61,7 +61,7 @@ export function EditApiKeyDialog({
   const utils = api.useUtils();
 
   const form = useForm<EditApiKeyFormValues>({
-    resolver: zodResolver(editApiKeySchema),
+    resolver: zodResolver(editApiKeySchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       name: apiKey.name,
       domainId: apiKey.domainId ? apiKey.domainId.toString() : "all",
@@ -168,7 +168,7 @@ export function EditApiKeyDialog({
               />
               <div className="flex justify-end">
                 <Button
-                  className="w-[120px] hover:bg-gray-100 focus:bg-gray-100"
+                  className="w-[120px]"
                   type="submit"
                   disabled={updateApiKey.isPending}
                 >

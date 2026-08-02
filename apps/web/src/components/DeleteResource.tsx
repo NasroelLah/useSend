@@ -36,11 +36,8 @@ type ConfirmationValues = {
   confirmation: string;
 };
 
-type ConfirmationSchema = z.ZodType<
-  ConfirmationValues,
-  z.ZodTypeDef,
-  ConfirmationValues
->;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ConfirmationSchema = z.ZodType<ConfirmationValues, any, any>;
 
 export interface DeleteResourceProps<
   Schema extends ConfirmationSchema = typeof defaultSchema,
@@ -51,7 +48,7 @@ export interface DeleteResourceProps<
   confirmLabel?: string;
   isLoading?: boolean;
   // eslint-disable-next-line no-unused-vars
-  onConfirm: (values: z.infer<Schema>) => void | Promise<void>;
+  onConfirm: (values: ConfirmationValues) => void | Promise<void>;
   open?: boolean;
   // eslint-disable-next-line no-unused-vars
   onOpenChange?: (open: boolean) => void;
@@ -80,7 +77,8 @@ export const DeleteResource = <
   const schema = (providedSchema ?? defaultSchema) as Schema;
 
   const form = useForm<z.infer<Schema>>({
-    resolver: zodResolver(schema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema) as any,
   });
 
   const [copied, setCopied] = useState(false);

@@ -16,6 +16,7 @@ import {
   hasDoubleOptInUrlPlaceholder,
 } from "~/lib/constants/double-opt-in";
 import { api } from "~/trpc/react";
+import { Breadcrumbs } from "~/components/Breadcrumbs";
 
 const DOUBLE_OPT_IN_URL_REQUIRED_MESSAGE =
   "Double opt-in email content must include {{doubleOptInUrl}}.";
@@ -123,9 +124,21 @@ function DoubleOptInEditor({
   return (
     <div className="p-4 container mx-auto">
       <div className="mx-auto">
+        <div className="mx-auto mb-4 w-full sm:w-[700px]">
+          <Breadcrumbs
+            items={[
+              { label: "Contacts", href: "/contacts" },
+              { label: contactBook.name, href: `/contacts/${contactBook.id}` },
+              { label: "Double opt-in" },
+            ]}
+          />
+        </div>
         <div className="mb-4 flex justify-between items-center w-full sm:w-[700px] mx-auto">
           <div className="flex items-center gap-3">
-            <Link href={`/contacts/${contactBook.id}`}>
+            <Link
+              href={`/contacts/${contactBook.id}`}
+              aria-label={`Back to ${contactBook.name}`}
+            >
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <div>
@@ -234,7 +247,7 @@ function DoubleOptInEditor({
           </p>
         </div>
 
-        <div className="rounded-lg bg-gray-50 w-full sm:w-[700px] mx-auto p-4 sm:p-10">
+        <div className="mx-auto w-full rounded-lg border bg-muted/40 p-4 sm:w-[700px] sm:p-10">
           <div className="w-full sm:w-[600px] mx-auto">
             <Editor
               initialContent={json}

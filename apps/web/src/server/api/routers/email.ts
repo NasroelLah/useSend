@@ -123,7 +123,32 @@ export const emailRouter = createTRPCRouter({
         OFFSET ${offset}
       `;
 
-      return { emails };
+      const countResult = await db.$queryRaw<Array<{ count: bigint }>>`
+        SELECT COUNT(*) as count
+        FROM "Email"
+        WHERE "teamId" = ${ctx.team.id}
+        ${input.status ? Prisma.sql`AND "latestStatus"::text = ${input.status}` : Prisma.sql``}
+        ${input.domain ? Prisma.sql`AND "domainId" = ${input.domain}` : Prisma.sql``}
+        ${input.apiId ? Prisma.sql`AND "apiId" = ${input.apiId}` : Prisma.sql``}
+        ${
+          input.search
+            ? Prisma.sql`AND (
+          "subject" ILIKE ${`%${input.search}%`}
+          OR EXISTS (
+            SELECT 1 FROM unnest("to") AS email
+            WHERE email ILIKE ${`%${input.search}%`}
+          )
+        )`
+            : Prisma.sql``
+        }
+      `;
+
+      return {
+        emails,
+        totalCount: Number(countResult[0]?.count ?? 0),
+        page,
+        limit,
+      };
     }),
 
   exportEmails: teamProcedure

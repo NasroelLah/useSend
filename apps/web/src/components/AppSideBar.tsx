@@ -52,6 +52,7 @@ import {
   DropdownMenuTrigger,
 } from "@usesend/ui/src/dropdown-menu";
 import { FeedbackDialog } from "./FeedbackDialog";
+import { TeamSwitcher } from "~/components/team/TeamSwitcher";
 import { env } from "~/env";
 
 // General items
@@ -141,6 +142,7 @@ export function AppSidebar() {
             <Badge variant="outline">Beta</Badge>
           </div>
         </SidebarGroupLabel>
+        <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

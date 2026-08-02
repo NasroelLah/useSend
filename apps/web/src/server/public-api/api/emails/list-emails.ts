@@ -42,7 +42,8 @@ const route = createRoute({
         .string()
         .optional()
         .default(String(DEFAULT_QUERY_LIMIT))
-        .pipe(z.coerce.number().min(1).max(DEFAULT_QUERY_LIMIT))
+        .transform(Number)
+        .pipe(z.number().min(1).max(DEFAULT_QUERY_LIMIT))
         .openapi({
           param: {
             name: "limit",

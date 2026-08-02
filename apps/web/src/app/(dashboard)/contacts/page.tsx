@@ -2,15 +2,17 @@
 
 import AddContactBook from "./add-contact-book";
 import ContactBooksList from "./contact-books-list";
-import { H1 } from "@usesend/ui";
+import { PageHeader } from "~/components/PageHeader";
 
 export default function ContactsPage() {
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <H1>Contact books</H1>
+      <PageHeader
+        title="Contact books"
+        description="Group your subscribers into lists you can send campaigns to."
+      >
         <AddContactBook />
-      </div>
+      </PageHeader>
       <ContactBooksList />
     </div>
   );

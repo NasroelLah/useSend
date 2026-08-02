@@ -1,4 +1,4 @@
-import { PLAN_LIMITS, LimitReason } from "~/lib/constants/plans";
+import { LimitReason } from "~/lib/constants/plans";
 import { env } from "~/env";
 import { getThisMonthUsage } from "./usage-service";
 import { TeamService } from "./team-service";
@@ -6,6 +6,7 @@ import { withCache } from "../redis";
 import { db } from "../db";
 import { logger } from "../logger/log";
 import { Plan } from "@prisma/client";
+import { PlanConfigService } from "./plan-config-service";
 
 function isLimitExceeded(current: number, limit: number): boolean {
   if (limit === -1) return false; // unlimited
@@ -27,10 +28,13 @@ export class LimitService {
       return { isLimitReached: false, limit: -1 };
     }
 
-    const team = await TeamService.getTeamCached(teamId);
+    const [team, planConfig] = await Promise.all([
+      TeamService.getTeamCached(teamId),
+      PlanConfigService.getPlanConfig(),
+    ]);
     const currentCount = await db.domain.count({ where: { teamId } });
 
-    const limit = PLAN_LIMITS[getActivePlan(team)].domains;
+    const limit = planConfig[getActivePlan(team)].limits.domains;
     if (isLimitExceeded(currentCount, limit)) {
       return {
         isLimitReached: true,
@@ -55,10 +59,13 @@ export class LimitService {
       return { isLimitReached: false, limit: -1 };
     }
 
-    const team = await TeamService.getTeamCached(teamId);
+    const [team, planConfig] = await Promise.all([
+      TeamService.getTeamCached(teamId),
+      PlanConfigService.getPlanConfig(),
+    ]);
     const currentCount = await db.contactBook.count({ where: { teamId } });
 
-    const limit = PLAN_LIMITS[getActivePlan(team)].contactBooks;
+    const limit = planConfig[getActivePlan(team)].limits.contactBooks;
     if (isLimitExceeded(currentCount, limit)) {
       return {
         isLimitReached: true,
@@ -83,10 +90,13 @@ export class LimitService {
       return { isLimitReached: false, limit: -1 };
     }
 
-    const team = await TeamService.getTeamCached(teamId);
+    const [team, planConfig] = await Promise.all([
+      TeamService.getTeamCached(teamId),
+      PlanConfigService.getPlanConfig(),
+    ]);
     const currentCount = await db.teamUser.count({ where: { teamId } });
 
-    const limit = PLAN_LIMITS[getActivePlan(team)].teamMembers;
+    const limit = planConfig[getActivePlan(team)].limits.teamMembers;
     if (isLimitExceeded(currentCount, limit)) {
       return {
         isLimitReached: true,
@@ -111,12 +121,15 @@ export class LimitService {
       return { isLimitReached: false, limit: -1 };
     }
 
-    const team = await TeamService.getTeamCached(teamId);
+    const [team, planConfig] = await Promise.all([
+      TeamService.getTeamCached(teamId),
+      PlanConfigService.getPlanConfig(),
+    ]);
     const currentCount = await db.webhook.count({
       where: { teamId },
     });
 
-    const limit = PLAN_LIMITS[getActivePlan(team)].webhooks;
+    const limit = planConfig[getActivePlan(team)].limits.webhooks;
     if (isLimitExceeded(currentCount, limit)) {
       return {
         isLimitReached: true,
@@ -147,7 +160,10 @@ export class LimitService {
       return { isLimitReached: false, limit: -1 };
     }
 
-    const team = await TeamService.getTeamCached(teamId);
+    const [team, planConfig] = await Promise.all([
+      TeamService.getTeamCached(teamId),
+      PlanConfigService.getPlanConfig(),
+    ]);
 
     // In cloud, enforce verification and block flags first
     if (team.isBlocked) {
@@ -170,7 +186,7 @@ export class LimitService {
     const dailyLimit =
       activePlan !== "FREE"
         ? team.dailyEmailLimit
-        : PLAN_LIMITS.FREE.emailsPerDay;
+        : planConfig.FREE.limits.emailsPerDay;
 
     logger.info(
       { dailyUsage, dailyLimit, team },
@@ -207,7 +223,7 @@ export class LimitService {
         0,
       );
       // Use FREE plan limits for inactive subscriptions
-      const monthlyLimit = PLAN_LIMITS.FREE.emailsPerMonth;
+      const monthlyLimit = planConfig.FREE.limits.emailsPerMonth;
 
       logger.info(
         { monthlyUsage, monthlyLimit, team, isActive: team.isActive },

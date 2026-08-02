@@ -36,7 +36,7 @@ const contactSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  properties: z.record(z.string()).optional(),
+  properties: z.record(z.string(), z.string()).optional(),
   subscribed: z.boolean().optional(),
 });
 
@@ -82,7 +82,7 @@ export const EditContact: React.FC<{
   const utils = api.useUtils();
 
   const contactForm = useForm<z.infer<typeof contactSchema>>({
-    resolver: zodResolver(contactSchema),
+    resolver: zodResolver(contactSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       email: contact.email || "",
       firstName: contact.firstName || "",

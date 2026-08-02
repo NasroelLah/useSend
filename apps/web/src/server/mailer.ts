@@ -6,6 +6,7 @@ import { getDomains } from "./service/domain-service";
 import { sendEmail } from "./service/email-service";
 import { logger } from "./logger/log";
 import { renderOtpEmail, renderTeamInviteEmail } from "./email-templates";
+import { setOtp } from "./dev-otp-store";
 
 let usesend: UseSend | undefined;
 
@@ -25,6 +26,7 @@ export async function sendSignUpEmail(
 
   if (env.NODE_ENV === "development") {
     logger.info({ email, url, token }, "Sending sign in email");
+    setOtp(email, token);
     return;
   }
 

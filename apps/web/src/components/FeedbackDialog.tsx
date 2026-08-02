@@ -36,7 +36,7 @@ export function FeedbackDialog({ trigger }: { trigger?: ReactNode }) {
   const [isMac, setIsMac] = useState(false);
 
   const form = useForm<z.infer<typeof FeedbackSchema>>({
-    resolver: zodResolver(FeedbackSchema),
+    resolver: zodResolver(FeedbackSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       message: "",
     },

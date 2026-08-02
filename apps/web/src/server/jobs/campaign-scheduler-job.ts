@@ -89,17 +89,16 @@ export class CampaignSchedulerService {
 
   static async start() {
     try {
-      await this.schedulerQueue.add(
-        "tick",
-        {},
+      await this.schedulerQueue.upsertJobScheduler(
+        "campaign-scheduler",
+        { every: SCHEDULER_TICK_MS },
         {
-          jobId: "campaign-scheduler",
-          repeat: { every: SCHEDULER_TICK_MS },
-          ...DEFAULT_QUEUE_OPTIONS,
+          name: "tick",
+          data: {},
+          opts: DEFAULT_QUEUE_OPTIONS,
         }
       );
     } catch (err) {
-      // Adding the same repeatable job is idempotent; ignore job-exists errors
       logger.info({ err }, "Scheduler start attempted");
     }
   }

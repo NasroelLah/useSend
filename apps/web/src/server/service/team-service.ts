@@ -56,21 +56,6 @@ export class TeamService {
     userId: number,
     name: string,
   ): Promise<Team | undefined> {
-    const teams = await db.team.findMany({
-      where: {
-        teamUsers: {
-          some: {
-            userId: userId,
-          },
-        },
-      },
-    });
-
-    if (teams.length > 0) {
-      logger.info({ userId }, "User already has a team");
-      return;
-    }
-
     if (!env.NEXT_PUBLIC_IS_CLOUD) {
       const _team = await db.team.findFirst();
       if (_team) {

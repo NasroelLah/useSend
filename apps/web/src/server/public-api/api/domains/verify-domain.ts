@@ -7,12 +7,9 @@ const route = createRoute({
   path: "/v1/domains/{id}/verify",
   request: {
     params: z.object({
-      id: z.coerce.number().openapi({
-        param: {
-          name: "id",
-          in: "path",
-        },
-        example: 1,
+      id: z.string().openapi({
+        param: { name: "id", in: "path" },
+        example: "1",
       }),
     }),
   },
@@ -51,9 +48,10 @@ const route = createRoute({
 });
 
 function verifyDomain(app: PublicAPIApp) {
-  app.openapi(route, async (c) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  app.openapi(route, async (c): Promise<any> => {
     const team = c.var.team;
-    const domainId = c.req.valid("param").id;
+    const domainId = Number(c.req.valid("param").id);
 
     // Check if API key has access to this domain
     let domain = null;

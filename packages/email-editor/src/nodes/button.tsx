@@ -80,7 +80,7 @@ export function ButtonComponent(props: NodeViewProps) {
               onClick={(e) => {
                 e.preventDefault();
                 const pos = getPos();
-                editor.commands.setNodeSelection(pos);
+                if (pos !== undefined) editor.commands.setNodeSelection(pos);
               }}
             >
               <div className="relative flex max-w-full items-center">
@@ -100,7 +100,7 @@ export function ButtonComponent(props: NodeViewProps) {
                     className="absolute inset-x-[-4px] inset-y-0 flex items-center justify-center"
                     onSubmit={(e) => {
                       e.preventDefault();
-                      const endPos = props.getPos() + props.node.nodeSize;
+                      const endPos = (props.getPos() ?? 0) + props.node.nodeSize;
 
                       editor.commands.focus("start");
 
@@ -120,7 +120,8 @@ export function ButtonComponent(props: NodeViewProps) {
                         });
                       }}
                       onBlur={() => {
-                        editor.commands.setNodeSelection(getPos());
+                        const pos = getPos();
+                        if (pos !== undefined) editor.commands.setNodeSelection(pos);
                       }}
                       autoFocus
                       className="w-full bg-transparent text-center outline-none"

@@ -30,7 +30,7 @@ import { useUpgradeModalStore } from "~/store/upgradeModalStore";
 import { LimitReason } from "~/lib/constants/plans";
 
 const contactBookSchema = z.object({
-  name: z.string({ required_error: "Name is required" }).min(1, {
+  name: z.string({ message: "Name is required" }).min(1, {
     message: "Name is required",
   }),
   variables: z.string().optional(),
@@ -49,7 +49,7 @@ export default function AddContactBook() {
   const utils = api.useUtils();
 
   const contactBookForm = useForm<z.infer<typeof contactBookSchema>>({
-    resolver: zodResolver(contactBookSchema),
+    resolver: zodResolver(contactBookSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       name: "",
       variables: "",

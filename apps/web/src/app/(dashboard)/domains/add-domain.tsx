@@ -40,7 +40,7 @@ import { LimitReason } from "~/lib/constants/plans";
 
 const domainSchema = z.object({
   region: z.string().optional(),
-  domain: z.string({ required_error: "Domain is required" }).min(1, {
+  domain: z.string({ message: "Domain is required" }).min(1, {
     message: "Domain is required",
   }),
 });
@@ -56,7 +56,7 @@ export default function AddDomain() {
   const addDomainMutation = api.domain.createDomain.useMutation();
 
   const domainForm = useForm<z.infer<typeof domainSchema>>({
-    resolver: zodResolver(domainSchema),
+    resolver: zodResolver(domainSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       region: "",
       domain: "",

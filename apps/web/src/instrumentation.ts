@@ -1,6 +1,3 @@
-import { initDomainVerificationJob } from "~/server/jobs/domain-verification-job";
-import { isCloud, isEmailCleanupEnabled } from "~/utils/common";
-
 let initialized = false;
 
 /**
@@ -12,6 +9,11 @@ export async function register() {
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   if (process.env.NEXT_RUNTIME === "nodejs" && !initialized) {
     console.log("Registering instrumentation");
+
+    // Imported dynamically so this module stays Edge-runtime-safe; static
+    // imports here get bundled into the Edge build and pull in node-only
+    // modules (dns, crypto, bullmq, nodemailer).
+    const { isCloud, isEmailCleanupEnabled } = await import("~/utils/common");
 
     const { EmailQueueService } = await import(
       "~/server/service/email-queue-service"
@@ -26,6 +28,9 @@ export async function register() {
     }
 
     if (process.env.REDIS_URL) {
+      const { initDomainVerificationJob } = await import(
+        "~/server/jobs/domain-verification-job"
+      );
       await initDomainVerificationJob();
     }
 

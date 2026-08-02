@@ -15,30 +15,12 @@ import { useRef, useState } from "react";
 import { Edit3 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "@usesend/ui/src/toaster";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSubContent,
-  DropdownMenuTrigger,
-} from "@usesend/ui/src/dropdown-menu";
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@usesend/ui/src/command";
 
 export const EditSchedule: React.FC<{
   emailId: string;
   scheduledAt: string | null;
 }> = ({ emailId, scheduledAt }) => {
   const [open, setOpen] = useState(false);
-  const [openSuggestions, setOpenSuggestions] = useState(true);
   const [scheduleInput, setScheduleInput] = useState(scheduledAt || "");
   const [scheduledAtTime, setScheduledAtTime] = useState<Date | null>(
     scheduledAt ? new Date(scheduledAt) : null
@@ -77,10 +59,7 @@ export const EditSchedule: React.FC<{
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setScheduleInput(e.target.value);
-    const parsedDate = chrono.parseDate(e.target.value);
-    if (parsedDate) {
-      setScheduledAtTime(parsedDate);
-    }
+    setScheduledAtTime(chrono.parseDate(e.target.value));
   };
 
   return (
@@ -103,56 +82,31 @@ export const EditSchedule: React.FC<{
               <label htmlFor="scheduleInput" className="block mb-2">
                 Schedule at
               </label>
-              {/* <Input
+              <Input
                 id="scheduleInput"
+                ref={inputRef}
                 value={scheduleInput}
                 onChange={onInputChange}
-                // onClick={() => setOpenSuggestions(true)}
-                onFocus={() => setOpenSuggestions(true)}
-                // onBlur={() => setOpenSuggestions(false)}
                 placeholder="Enter date and time (e.g., tomorrow at 3pm)"
+                aria-describedby="scheduleInputHint"
               />
-
-              <DropdownMenu
-                open={openSuggestions}
-                onOpenChange={setOpenSuggestions}
+              <p
+                id="scheduleInputHint"
+                className="mt-2 text-sm text-muted-foreground"
+                aria-live="polite"
               >
-                <div className="w-full flex justify-center">
-                  <DropdownMenuTrigger></DropdownMenuTrigger>
-                </div>
-                <DropdownMenuContent className=" min-w-[29rem]">
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Billing</DropdownMenuItem>
-                  <DropdownMenuItem>Team</DropdownMenuItem>
-                  <DropdownMenuItem>Subscription</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu> */}
-              <CommandDialog
-                open={openSuggestions}
-                onOpenChange={setOpenSuggestions}
-              >
-                <CommandInput placeholder="Type a command or search..." />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup heading="Suggestions">
-                    <CommandItem>Calendar</CommandItem>
-                    <CommandItem>Search Emoji</CommandItem>
-                    <CommandItem>Calculator</CommandItem>
-                  </CommandGroup>
-                  <CommandSeparator />
-                  <CommandGroup heading="Settings">
-                    <CommandItem>Profile</CommandItem>
-                    <CommandItem>Billing</CommandItem>
-                    <CommandItem>Settings</CommandItem>
-                  </CommandGroup>
-                </CommandList>
-              </CommandDialog>
+                {scheduledAtTime
+                  ? `Will send ${scheduledAtTime.toLocaleString()}`
+                  : "Accepts natural language, e.g. \u201Ctomorrow at 3pm\u201D."}
+              </p>
             </div>
             <div className="flex justify-end">
               <Button
-                className="w-[100px] bg-white hover:bg-gray-100 focus:bg-gray-100"
+                className="w-[100px]"
                 onClick={handleScheduleUpdate}
-                disabled={updateEmailScheduledAtMutation.isPending}
+                disabled={
+                  updateEmailScheduledAtMutation.isPending || !scheduledAtTime
+                }
               >
                 {updateEmailScheduledAtMutation.isPending
                   ? "Updating..."

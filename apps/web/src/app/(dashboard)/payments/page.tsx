@@ -32,7 +32,7 @@ function VerifySuccess() {
     refetchInterval: 3000,
   });
 
-  if (teams?.[0]?.plan !== "FREE") {
+  if (!isLoading && teams?.[0] && teams[0].plan !== "FREE") {
     return (
       <div>
         <div className="flex gap-2 items-center">

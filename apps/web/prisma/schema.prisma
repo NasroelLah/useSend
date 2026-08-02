@@ -2,8 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = []
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -12,7 +11,7 @@ datasource db {
   // Further reading:
   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
   // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-  url      = env("DATABASE_URL")
+  // url moved to prisma.config.ts per Prisma 7 requirements
 }
 
 model AppSetting {
@@ -112,6 +111,10 @@ model Team {
   isVerified       Boolean           @default(false)
   dailyEmailLimit  Int               @default(10000)
   isBlocked        Boolean           @default(false)
+  // Bring Your Own SES — stored encrypted with AES-256-GCM
+  byosAccessKeyId  String?
+  byosSecretKey    String?
+  byosRegion       String?
   teamUsers        TeamUser[]
   domains          Domain[]
   apiKeys          ApiKey[]
@@ -267,7 +270,8 @@ model Email {
   emailEvents  EmailEvent[]
 
   @@index([campaignId, contactId])
-  @@index([createdAt(sort: Desc)])
+  @@index([teamId, createdAt(sort: Desc)])
+  @@index([teamId, latestStatus])
 }
 
 model CampaignEmail {
@@ -277,6 +281,7 @@ model CampaignEmail {
   createdAt  DateTime @default(now())
 
   @@id([campaignId, contactId])
+  @@index([emailId])
 }
 
 model EmailEvent {

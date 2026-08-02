@@ -273,7 +273,9 @@ export default function CampaignDetailsPage({
                 </Link>
               </div>
             </div>
-            <div className=" dark:bg-slate-50 overflow-auto text-black rounded border-t">
+            {/* Email HTML assumes a light background, so the preview canvas
+                stays light in both themes rather than following app tokens. */}
+            <div className="overflow-auto rounded border-t bg-[#ffffff] text-[#000000]">
               <iframe
                 className="w-full min-h-[600px]"
                 srcDoc={campaign.html ?? ""}

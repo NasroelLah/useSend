@@ -27,7 +27,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 
 const searchSchema = z.object({
   email: z
-    .string({ required_error: "Email is required" })
+    .string({ message: "Email is required" })
     .trim()
     .email("Enter a valid email address"),
 });
@@ -42,7 +42,7 @@ export default function AdminWaitlistPage() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const form = useForm<SearchInput>({
-    resolver: zodResolver(searchSchema),
+    resolver: zodResolver(searchSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       email: "",
     },
