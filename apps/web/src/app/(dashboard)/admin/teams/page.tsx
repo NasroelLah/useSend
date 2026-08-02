@@ -34,7 +34,7 @@ import { isCloud } from "~/utils/common";
 
 const searchSchema = z.object({
   query: z
-    .string({ required_error: "Enter a team ID, name, domain, member email, or subscription ID" })
+    .string({ message: "Enter a team ID, name, domain, member email, or subscription ID" })
     .trim()
     .min(1, "Enter a team ID, name, domain, member email, or subscription ID"),
 });
@@ -45,8 +45,8 @@ type RouterOutputs = inferRouterOutputs<AppRouter>;
 type TeamAdmin = NonNullable<RouterOutputs["admin"]["findTeam"]>;
 
 const updateSchema = z.object({
-  apiRateLimit: z.coerce.number().int().min(1).max(10_000),
-  dailyEmailLimit: z.coerce.number().int().min(0).max(10_000_000),
+  apiRateLimit: z.number().int().min(1).max(10_000),
+  dailyEmailLimit: z.number().int().min(0).max(10_000_000),
   isBlocked: z.boolean(),
   plan: z.enum(["FREE", "BASIC"]),
 });
@@ -63,7 +63,8 @@ export default function AdminTeamsPage() {
   });
 
   const updateForm = useForm<UpdateInput>({
-    resolver: zodResolver(updateSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(updateSchema) as any,
     defaultValues: {
       apiRateLimit: 1,
       dailyEmailLimit: 0,

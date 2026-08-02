@@ -89,13 +89,12 @@ export class CampaignSchedulerService {
 
   static async start() {
     try {
-      await this.schedulerQueue.add(
-        "tick",
-        {},
+      await this.schedulerQueue.upsertJobScheduler(
+        "campaign-scheduler",
+        { every: SCHEDULER_TICK_MS },
         {
-          jobId: "campaign-scheduler",
-          repeat: { every: SCHEDULER_TICK_MS },
-          ...DEFAULT_QUEUE_OPTIONS,
+          name: "tick",
+          opts: DEFAULT_QUEUE_OPTIONS,
         }
       );
     } catch (err) {

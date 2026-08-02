@@ -9,7 +9,7 @@ const route = createRoute({
   path: "/v1/domains/{id}",
   request: {
     params: z.object({
-      id: z.coerce.number().openapi({
+      id: z.string().transform(Number).openapi({
         param: {
           name: "id",
           in: "path",
@@ -55,7 +55,8 @@ const route = createRoute({
 });
 
 function deleteDomain(app: PublicAPIApp) {
-  app.openapi(route, async (c) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  app.openapi(route, async (c): Promise<any> => {
     const team = c.var.team;
     const domainId = c.req.valid("param").id;
 

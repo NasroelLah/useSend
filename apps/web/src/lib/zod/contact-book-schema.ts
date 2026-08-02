@@ -10,7 +10,7 @@ export const ContactBookSchema = z.object({
     example: "Newsletter Subscribers",
   }),
   teamId: z.number().openapi({ description: "The ID of the team", example: 1 }),
-  properties: z.record(z.string()).openapi({
+  properties: z.record(z.string(), z.string()).openapi({
     description: "Custom properties for the contact book",
     example: { customField1: "value1" },
   }),

@@ -29,13 +29,13 @@ import { useRouter } from "next/navigation";
 import Spinner from "@usesend/ui/src/spinner";
 
 const campaignSchema = z.object({
-  name: z.string({ required_error: "Name is required" }).min(1, {
+  name: z.string({ message: "Name is required" }).min(1, {
     message: "Name is required",
   }),
-  from: z.string({ required_error: "From email is required" }).min(1, {
+  from: z.string({ message: "From email is required" }).min(1, {
     message: "From email is required",
   }),
-  subject: z.string({ required_error: "Subject is required" }).min(1, {
+  subject: z.string({ message: "Subject is required" }).min(1, {
     message: "Subject is required",
   }),
 });
