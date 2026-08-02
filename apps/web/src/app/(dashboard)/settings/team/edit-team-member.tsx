@@ -46,7 +46,7 @@ export const EditTeamMember: React.FC<{
   const utils = api.useUtils();
 
   const teamUserForm = useForm<z.infer<typeof teamUserSchema>>({
-    resolver: zodResolver(teamUserSchema),
+    resolver: zodResolver(teamUserSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       role: teamUser.role,
     },

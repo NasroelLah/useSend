@@ -60,7 +60,7 @@ export default function InviteTeamMember() {
   const [open, setOpen] = useState(false);
 
   const form = useForm<FormData>({
-    resolver: zodResolver(inviteTeamMemberSchema),
+    resolver: zodResolver(inviteTeamMemberSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       email: "",
       role: "MEMBER",

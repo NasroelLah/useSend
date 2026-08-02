@@ -48,7 +48,7 @@ export interface DeleteResourceProps<
   confirmLabel?: string;
   isLoading?: boolean;
   // eslint-disable-next-line no-unused-vars
-  onConfirm: (values: z.infer<Schema>) => void | Promise<void>;
+  onConfirm: (values: ConfirmationValues) => void | Promise<void>;
   open?: boolean;
   // eslint-disable-next-line no-unused-vars
   onOpenChange?: (open: boolean) => void;

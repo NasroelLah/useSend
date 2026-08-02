@@ -10,9 +10,9 @@ const route = createRoute({
   path: "/v1/domains/{id}",
   request: {
     params: z.object({
-      id: z.coerce.number().openapi({
+      id: z.string().openapi({
         param: { name: "id", in: "path" },
-        example: 1,
+        example: "1",
       }),
     }),
   },
@@ -29,9 +29,10 @@ const route = createRoute({
 });
 
 function getDomain(app: PublicAPIApp) {
-  app.openapi(route, async (c) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  app.openapi(route, async (c): Promise<any> => {
     const team = c.var.team;
-    const id = c.req.valid("param").id;
+    const id = Number(c.req.valid("param").id);
 
     // Enforce API key domain restriction (if any)
     if (team.apiKey.domainId && team.apiKey.domainId !== id) {

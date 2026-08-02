@@ -73,11 +73,11 @@ export default function LoginPage({
   >("idle");
 
   const emailForm = useForm<z.infer<typeof emailSchema>>({
-    resolver: zodResolver(emailSchema),
+    resolver: zodResolver(emailSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
   });
 
   const otpForm = useForm<z.infer<typeof otpSchema>>({
-    resolver: zodResolver(otpSchema),
+    resolver: zodResolver(otpSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
   });
 
   async function onEmailSubmit(values: z.infer<typeof emailSchema>) {

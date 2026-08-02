@@ -81,7 +81,8 @@ export const EditSesSettingsForm: React.FC<SesSettingsProps> = ({
   const utils = api.useUtils();
 
   const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(FormSchema) as any,
     defaultValues: {
       settingsId: setting.id,
       sendRate: setting.sesEmailRateLimit,

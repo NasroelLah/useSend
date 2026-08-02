@@ -50,7 +50,7 @@ export default function AddContact({
   const addContactsMutation = api.contacts.addContacts.useMutation();
 
   const contactsForm = useForm<z.infer<typeof contactsSchema>>({
-    resolver: zodResolver(contactsSchema),
+    resolver: zodResolver(contactsSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       contacts: "",
     },

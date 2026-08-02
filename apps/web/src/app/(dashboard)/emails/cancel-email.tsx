@@ -40,7 +40,7 @@ export const CancelEmail: React.FC<{
   const utils = api.useUtils();
 
   const cancelForm = useForm<z.infer<typeof cancelSchema>>({
-    resolver: zodResolver(cancelSchema),
+    resolver: zodResolver(cancelSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
   });
 
   async function onEmailCancel(values: z.infer<typeof cancelSchema>) {

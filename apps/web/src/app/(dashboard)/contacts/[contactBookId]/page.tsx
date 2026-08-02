@@ -192,7 +192,8 @@ export default function ContactsPage({
         {
           contactBookId: contactBookId,
         },
-        (old) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (old: any) => {
           if (!old) return old;
           return {
             ...old,
