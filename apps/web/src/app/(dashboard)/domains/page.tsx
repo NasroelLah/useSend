@@ -2,15 +2,17 @@
 
 import DomainsList from "./domain-list";
 import AddDomain from "./add-domain";
-import { H1 } from "@usesend/ui";
+import { PageHeader } from "~/components/PageHeader";
 
 export default function DomainsPage() {
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <H1>Domains</H1>
+      <PageHeader
+        title="Domains"
+        description="Verify the domains you send from so your email reaches the inbox."
+      >
         <AddDomain />
-      </div>
+      </PageHeader>
       <DomainsList />
     </div>
   );

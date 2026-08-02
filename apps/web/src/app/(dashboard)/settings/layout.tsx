@@ -3,6 +3,7 @@
 import { useTeam } from "~/providers/team-context";
 import { SettingsNavButton } from "../dev-settings/settings-nav-button";
 import { isCloud } from "~/utils/common";
+import { H1 } from "@usesend/ui";
 
 export const dynamic = "force-static";
 
@@ -15,7 +16,7 @@ export default function ApiKeysPage({
 
   return (
     <div>
-      <h1 className="font-bold text-lg">Settings</h1>
+      <H1>Settings</H1>
       <div className="flex gap-4 mt-4">
         {isCloud() ? (
           <SettingsNavButton href="/settings">Usage</SettingsNavButton>

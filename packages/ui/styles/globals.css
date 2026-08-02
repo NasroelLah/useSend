@@ -54,6 +54,7 @@
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
   --animate-accordion-down: accordion-down 0.4s ease-out;
   --animate-accordion-up: accordion-up 0.4s ease-out;
@@ -160,7 +161,7 @@
     --background: 240 21% 12%;
     --foreground: 226 64% 88%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 240 21% 16%;
     --card-foreground: 226 64% 88%;
 
     --popover: 240 21% 15%;
