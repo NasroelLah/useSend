@@ -1,32 +1,32 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Spinner } from "./spinner";
 
 import { cn } from "../lib/utils";
+import { Spinner } from "./spinner";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border  disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
-        icon: "bg-transparent hover:bg-transparent hover:bg-accent hover:text-accent-foreground",
+        icon: "bg-transparent hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         silent: "bg-transparent hover:bg-accent/10 p-1",
       },
       size: {
-        default: "h-9 px-4 ",
-        sm: "h-8 rounded-md px-3",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        icon: "size-9",
       },
     },
     defaultVariants: {
@@ -72,7 +72,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ) : (
           <>
             {isLoading && showSpinner ? (
-              <Spinner className="h-4 w-4 mr-2 " innerSvgClass="stroke-white" />
+              <Spinner className="size-4 shrink-0" innerSvgClass="stroke-current" />
             ) : null}
             {children}
           </>
