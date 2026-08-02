@@ -57,7 +57,8 @@ export async function POST(req: Request, ctx: any) {
         const ip = getClientIp(req);
         if (!ip) {
           logger.warn("Auth email rate limit skipped: missing client IP");
-          return handler(req, ctx);
+          return handler(req, /* @next-codemod-error 'ctx' is passed as an argument. Any asynchronous properties of 'props' must be awaited when accessed. */
+          ctx);
         }
         const redis = getRedis();
         const key = redisKey(`auth-rl:${ip}`);
@@ -81,5 +82,6 @@ export async function POST(req: Request, ctx: any) {
       }
     }
   }
-  return handler(req, ctx);
+  return handler(req, /* @next-codemod-error 'ctx' is passed as an argument. Any asynchronous properties of 'props' must be awaited when accessed. */
+  ctx);
 }
