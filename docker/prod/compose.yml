@@ -1,79 +1,144 @@
-name: usesend-prod
+name: usesend
 
 services:
-  postgres:
-    image: postgres:16
-    container_name: usesend-db-prod
-    restart: always
+  usesend:
+    image: ghcr.io/nasroellah/usesend:latest
+    container_name: usesend
+    restart: unless-stopped
+
+    ports:
+      - "${PORT:-3000}:3000"
+
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:?err}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?err}
-      - POSTGRES_DB=${POSTGRES_DB:?err}
+      #########################################
+      # Application
+      #########################################
+      PORT: 3000
+      NEXT_PUBLIC_IS_CLOUD: "false"
+
+      #########################################
+      # Authentication
+      #########################################
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      # Email (magic link / OTP) dashboard login — enabled when FROM_EMAIL is set.
+      # The address domain must match a verified sending domain configured in-app
+      # (self-hosted delivers the OTP via the app's own SES pipeline).
+      FROM_EMAIL: ${FROM_EMAIL}
+
+      #########################################
+      # Mailer Provider (platform notifications)
+      #########################################
+      # Outbound transport for magic-link / invite / billing emails: ses | smtp | usesend.
+      # Unset = backward-compatible default (self-hosted -> SES via app domain; cloud -> useSend API).
+      MAILER_PROVIDER: ${MAILER_PROVIDER}
+      # Required only when MAILER_PROVIDER=smtp. Uses the MAILER_SMTP_ prefix
+      # (NOT SMTP_HOST/SMTP_USER, which are the inbound tenant proxy).
+      MAILER_SMTP_HOST: ${MAILER_SMTP_HOST}
+      MAILER_SMTP_PORT: ${MAILER_SMTP_PORT}
+      MAILER_SMTP_USER: ${MAILER_SMTP_USER}
+      MAILER_SMTP_PASS: ${MAILER_SMTP_PASS}
+      # "true" forces TLS; if unset, derived from port (465 = secure).
+      MAILER_SMTP_SECURE: ${MAILER_SMTP_SECURE}
+
+      #########################################
+      # Database (Neon)
+      #########################################
+      DATABASE_URL: ${DATABASE_URL}
+
+      #########################################
+      # Redis (Upstash)
+      #########################################
+      REDIS_URL: ${REDIS_URL}
+      REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX}
+
+      #########################################
+      # Amazon SES
+      #########################################
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+
+      #########################################
+      # S3 Compatible Storage (Cloudflare R2)
+      #########################################
+      S3_COMPATIBLE_API_URL: ${S3_COMPATIBLE_API_URL}
+      S3_COMPATIBLE_ACCESS_KEY: ${S3_COMPATIBLE_ACCESS_KEY}
+      S3_COMPATIBLE_SECRET_KEY: ${S3_COMPATIBLE_SECRET_KEY}
+      S3_COMPATIBLE_BUCKET: ${S3_COMPATIBLE_BUCKET}
+      S3_COMPATIBLE_PUBLIC_URL: ${S3_COMPATIBLE_PUBLIC_URL}
+
+      #########################################
+      # OAuth Providers (at least one provider is required)
+      #########################################
+      GITHUB_ID: ${GITHUB_ID}
+      GITHUB_SECRET: ${GITHUB_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+
+      #########################################
+      # SMTP Proxy
+      #########################################
+      SMTP_HOST: smtp.pintesia.com
+      SMTP_USER: ${SMTP_USER}
+
+      #########################################
+      # API & Rate Limits
+      #########################################
+      API_RATE_LIMIT: ${API_RATE_LIMIT}
+      # Max magic-link/OTP requests per IP per 60s (0 = unlimited). Recommended when email login is on.
+      AUTH_EMAIL_RATE_LIMIT: ${AUTH_EMAIL_RATE_LIMIT}
+
+      #########################################
+      # Admin, Notifications & Maintenance
+      #########################################
+      # Email of the dashboard admin (isAdmin = user.email === ADMIN_EMAIL).
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      # Founder email for waitlist/feedback/subscription notifications (optional).
+      FOUNDER_EMAIL: ${FOUNDER_EMAIL}
+      # Discord webhook for error notifications (optional).
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
+      # Self-hosted only: daily job nulls text/html of emails older than N days (disabled if unset/0).
+      EMAIL_CLEANUP_DAYS: ${EMAIL_CLEANUP_DAYS}
+
+      #########################################
+      # Timezone
+      #########################################
+      TZ: ${TZ}
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 10s
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000"]
+      interval: 30s
       timeout: 5s
       retries: 5
-    # ports:
-    #   - "5432:5432"
-    volumes:
-      - database:/var/lib/postgresql/data
 
-  redis:
-    image: redis:7
-    container_name: usesend-redis-prod
-    restart: always
-    # ports:
-    #   - "6379:6379"
-    volumes:
-      - cache:/data
-    command: ["redis-server", "--maxmemory-policy", "noeviction"]
-
-  minio:
-    image: minio/minio
-    container_name: usesend-storage-prod
-    ports:
-      - 9002:9002
-      - 9001:9001
-    volumes:
-      - storage:/data
-    environment:
-      MINIO_ROOT_USER: unsend
-      MINIO_ROOT_PASSWORD: password
-    entrypoint: sh
-    command: -c 'mkdir -p /data/unsend && minio server /data --console-address ":9001" --address ":9002"'
-
-  usesend:
-    image: usesend/usesend:latest
-    container_name: usesend
-    restart: always
-    ports:
-      - ${PORT:-3000}:${PORT:-3000}
-    environment:
-      - PORT=${PORT:-3000}
-      - DATABASE_URL=${DATABASE_URL:?err}
-      - NEXTAUTH_URL=${NEXTAUTH_URL:?err}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:?err}
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:?err}
-      - GITHUB_ID=${GITHUB_ID:?err}
-      - GITHUB_SECRET=${GITHUB_SECRET:?err}
-      - REDIS_URL=${REDIS_URL:?err}
-      - REDIS_KEY_PREFIX=${REDIS_KEY_PREFIX:-}
-      - NEXT_PUBLIC_IS_CLOUD=${NEXT_PUBLIC_IS_CLOUD:-false}
-      - API_RATE_LIMIT=${API_RATE_LIMIT:-1}
-      - SMTP_HOST=${SMTP_HOST:-smtp.usesend.com}
-      - SMTP_USER=${SMTP_USER:-usesend}
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - smtp
 
-volumes:
-  database:
-  cache:
-  storage:
+    networks:
+      - usesend
+
+  smtp:
+    image: ghcr.io/nasroellah/smtp-server:latest
+    container_name: usesend-smtp
+    restart: unless-stopped
+
+    environment:
+      SMTP_AUTH_USERNAME: ${SMTP_USER}
+      USESEND_BASE_URL: http://usesend:3000
+      USESEND_API_KEY_PATH: "/certs/key.pem"
+      USESEND_API_CERT_PATH: "/certs/fullchain.pem"
+
+    volumes:
+      - /opt/certs/pintesia/key.pem:/certs/key.pem:ro
+      - /opt/certs/pintesia/fullchain.pem:/certs/fullchain.pem:ro
+    ports:
+      - "465:465"
+      - "587:587"
+
+    networks:
+      - usesend
+
+networks:
+  usesend:
+    driver: bridge

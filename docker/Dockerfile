@@ -4,7 +4,7 @@ ENV PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
 ENV SKIP_ENV_VALIDATION="true"
 ENV DOCKER_OUTPUT 1
 ENV NEXT_TELEMETRY_DISABLED 1
-ENV NEXT_PUBLIC_IS_CLOUD="false"
+ENV NEXT_PUBLIC_IS_CLOUD="true"
 
 RUN corepack enable
 
@@ -67,6 +67,7 @@ COPY --from=installer  /app/apps/web/public ./apps/web/public
 # Copy prisma files
 COPY --from=installer  /app/apps/web/prisma/schema.prisma ./apps/web/prisma/schema.prisma
 COPY --from=installer  /app/apps/web/prisma/migrations ./apps/web/prisma/migrations
+COPY --from=installer  /app/apps/web/prisma.config.ts ./apps/web/prisma.config.ts
 COPY --from=installer  /app/apps/web/node_modules/prisma ./node_modules/prisma
 COPY --from=installer  /app/apps/web/node_modules/@prisma ./node_modules/@prisma
 
