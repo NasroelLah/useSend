@@ -94,11 +94,11 @@ export class CampaignSchedulerService {
         { every: SCHEDULER_TICK_MS },
         {
           name: "tick",
+          data: {},
           opts: DEFAULT_QUEUE_OPTIONS,
         }
       );
     } catch (err) {
-      // Adding the same repeatable job is idempotent; ignore job-exists errors
       logger.info({ err }, "Scheduler start attempted");
     }
   }

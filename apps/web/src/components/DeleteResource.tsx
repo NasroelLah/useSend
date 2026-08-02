@@ -37,7 +37,7 @@ type ConfirmationValues = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ConfirmationSchema = z.ZodType<any, any, any>;
+type ConfirmationSchema = z.ZodType<ConfirmationValues, any, any>;
 
 export interface DeleteResourceProps<
   Schema extends ConfirmationSchema = typeof defaultSchema,
