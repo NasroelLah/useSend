@@ -88,6 +88,7 @@ export const adminRouter = createTRPCRouter({
           limits: z.object(
             Object.fromEntries(planLimitKeys.map((k) => [k, z.number().int()])),
           ) as z.ZodObject<Record<(typeof planLimitKeys)[number], z.ZodNumber>>,
+          allowByos: z.boolean(),
         }),
         BASIC: z.object({
           displayName: z.string().min(1),
@@ -99,6 +100,7 @@ export const adminRouter = createTRPCRouter({
           limits: z.object(
             Object.fromEntries(planLimitKeys.map((k) => [k, z.number().int()])),
           ) as z.ZodObject<Record<(typeof planLimitKeys)[number], z.ZodNumber>>,
+          allowByos: z.boolean(),
         }),
       }),
     )

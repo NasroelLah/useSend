@@ -10,6 +10,7 @@ import { DEFAULT_QUEUE_OPTIONS } from "../queue/queue-constants";
 import { logger } from "../logger/log";
 import { createWorkerHandler, TeamJob } from "../queue/bullmq-context";
 import { LimitService } from "./limit-service";
+import { getAwsCredentialOptionsForTeam } from "../aws/credentials";
 import {
   BUILT_IN_CONTACT_VARIABLES,
   replaceContactVariables,
@@ -430,6 +431,14 @@ async function executeEmail(job: QueueEmailJob) {
 
     const customHeaders = email.headers ? JSON.parse(email.headers) : undefined;
 
+    // Resolve per-team BYOS credentials (falls back to platform creds)
+    const { credentialOptions, byosRegion } =
+      await getAwsCredentialOptionsForTeam(email.teamId);
+
+    // BYOS region takes precedence over the domain's region when configured
+    const sendRegion =
+      byosRegion ?? domain?.region ?? env.AWS_DEFAULT_REGION;
+
     const messageId = await sendRawEmail({
       to: email.to,
       from: email.from,
@@ -439,7 +448,7 @@ async function executeEmail(job: QueueEmailJob) {
       cc: email.cc,
       text,
       html: email.html ?? undefined,
-      region: domain?.region ?? env.AWS_DEFAULT_REGION,
+      region: sendRegion,
       configurationSetName,
       attachments: attachments.length > 0 ? attachments : undefined,
       unsubUrl,
@@ -448,6 +457,7 @@ async function executeEmail(job: QueueEmailJob) {
       emailId: email.id,
       sesTenantId: domain?.sesTenantId,
       headers: customHeaders,
+      credentialOptions,
     });
 
     logger.info(

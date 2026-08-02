@@ -15,6 +15,8 @@ export type PlanDisplayConfig = {
   price: { monthly: number; currency: string };
   perks: string[];
   limits: PlanLimitConfig;
+  /** Whether teams on this plan can configure their own AWS SES credentials. */
+  allowByos: boolean;
 };
 
 export type PlanConfig = Record<Plan, PlanDisplayConfig>;
@@ -32,6 +34,7 @@ export const DEFAULT_PLAN_CONFIG: PlanConfig = {
       "1 webhook",
     ],
     limits: PLAN_LIMITS.FREE,
+    allowByos: false,
   },
   BASIC: {
     displayName: "Basic",
@@ -44,6 +47,7 @@ export const DEFAULT_PLAN_CONFIG: PlanConfig = {
       "Unlimited webhooks",
     ],
     limits: PLAN_LIMITS.BASIC,
+    allowByos: true,
   },
 };
 

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useFieldArray, useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Trash2, RotateCcw, Save } from "lucide-react";
+import { Plus, Trash2, RotateCcw, Save, Server } from "lucide-react";
 import { Button } from "@usesend/ui/src/button";
 import { Input } from "@usesend/ui/src/input";
 import { Badge } from "@usesend/ui/src/badge";
@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "@usesend/ui/src/form";
 import Spinner from "@usesend/ui/src/spinner";
+import { Switch } from "@usesend/ui/src/switch";
 import { toast } from "@usesend/ui/src/toaster";
 
 import { api } from "~/trpc/react";
@@ -40,6 +41,7 @@ const planSchema = z.object({
   }),
   perks: z.array(z.object({ value: z.string() })),
   limits: limitSchema,
+  allowByos: z.boolean(),
 });
 
 const formSchema = z.object({
@@ -52,14 +54,15 @@ type FormValues = z.infer<typeof formSchema>;
 // ── Helper ───────────────────────────────────────────────────────────────────
 
 function configToForm(config: {
-  FREE: { displayName: string; price: { monthly: number; currency: string }; perks: string[]; limits: Record<string, number> };
-  BASIC: { displayName: string; price: { monthly: number; currency: string }; perks: string[]; limits: Record<string, number> };
+  FREE: { displayName: string; price: { monthly: number; currency: string }; perks: string[]; limits: Record<string, number>; allowByos: boolean };
+  BASIC: { displayName: string; price: { monthly: number; currency: string }; perks: string[]; limits: Record<string, number>; allowByos: boolean };
 }): FormValues {
   const mapPlan = (plan: typeof config.FREE) => ({
     displayName: plan.displayName,
     price: plan.price,
     perks: plan.perks.map((v) => ({ value: v })),
     limits: plan.limits as FormValues["FREE"]["limits"],
+    allowByos: plan.allowByos,
   });
   return { FREE: mapPlan(config.FREE), BASIC: mapPlan(config.BASIC) };
 }
@@ -70,6 +73,7 @@ function formToPayload(values: FormValues) {
     price: plan.price,
     perks: plan.perks.map((p) => p.value).filter(Boolean),
     limits: plan.limits,
+    allowByos: plan.allowByos,
   });
   return { FREE: mapPlan(values.FREE), BASIC: mapPlan(values.BASIC) };
 }
@@ -254,6 +258,36 @@ function PlanCard({
           </Button>
         </div>
       </div>
+
+      {/* BYOS toggle */}
+      <div className="flex items-start justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-md bg-background p-1.5 shadow-sm border">
+            <Server className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-sm font-medium leading-none">Bring Your Own SES</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Allow teams on this plan to use their own AWS SES credentials for sending.
+            </p>
+          </div>
+        </div>
+        <FormField
+          control={form.control}
+          name={`${prefix}.allowByos`}
+          render={({ field }) => (
+            <FormItem className="flex items-center">
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  aria-label="Allow Bring Your Own SES"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 }
@@ -271,12 +305,14 @@ export default function AdminPlansPage() {
         price: { monthly: 0, currency: "USD" },
         perks: [],
         limits: { emailsPerMonth: 3000, emailsPerDay: 100, domains: 1, contactBooks: 1, teamMembers: 1, webhooks: 1 },
+        allowByos: false,
       },
       BASIC: {
         displayName: "Basic",
         price: { monthly: 0, currency: "USD" },
         perks: [],
         limits: { emailsPerMonth: -1, emailsPerDay: -1, domains: -1, contactBooks: -1, teamMembers: -1, webhooks: -1 },
+        allowByos: true,
       },
     },
   });
