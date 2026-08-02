@@ -1,10 +1,8 @@
 "use client";
 
 import {
-  BubbleMenu,
   EditorContent,
   EditorProvider,
-  FloatingMenu,
   useEditor,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";

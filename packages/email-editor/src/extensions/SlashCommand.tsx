@@ -26,7 +26,7 @@ import {
   useRef,
   useState,
 } from "react";
-import tippy, { GetReferenceClientRect } from "tippy.js";
+import { computePosition, flip, shift } from "@floating-ui/dom";
 import { UploadFn } from "./ImageExtension";
 
 export interface CommandProps {
@@ -418,7 +418,24 @@ export function getSlashCommandSuggestions(
     },
     render: () => {
       let component: ReactRenderer<any>;
-      let popup: InstanceType<any> | null = null;
+      let popupEl: HTMLDivElement | null = null;
+
+      function updatePosition(clientRect: (() => DOMRect | null) | null) {
+        if (!popupEl || !clientRect) return;
+        const rect = clientRect();
+        if (!rect) return;
+        const virtualEl = {
+          getBoundingClientRect: () => rect,
+        };
+        computePosition(virtualEl as Element, popupEl, {
+          placement: "bottom-start",
+          middleware: [flip(), shift({ padding: 8 })],
+        }).then(({ x, y }) => {
+          if (!popupEl) return;
+          popupEl.style.left = `${x}px`;
+          popupEl.style.top = `${y}px`;
+        });
+      }
 
       return {
         onStart: (props) => {
@@ -427,38 +444,27 @@ export function getSlashCommandSuggestions(
             editor: props.editor,
           });
 
-          popup = tippy("body", {
-            getReferenceClientRect: props.clientRect as GetReferenceClientRect,
-            appendTo: () => document.body,
-            content: component.element,
-            showOnCreate: true,
-            interactive: true,
-            trigger: "manual",
-          });
+          popupEl = document.createElement("div");
+          popupEl.style.position = "fixed";
+          popupEl.style.zIndex = "9999";
+          popupEl.appendChild(component.element);
+          document.body.appendChild(popupEl);
+          updatePosition(props.clientRect as () => DOMRect | null);
         },
         onUpdate: (props) => {
           component?.updateProps(props);
-
-          popup &&
-            popup[0].setProps({
-              getReferenceClientRect: props.clientRect,
-            });
+          updatePosition(props.clientRect as () => DOMRect | null);
         },
         onKeyDown: (props) => {
           if (props.event.key === "Escape") {
-            popup?.[0].hide();
-
+            popupEl?.remove();
             return true;
           }
-
           return component?.ref?.onKeyDown(props);
         },
         onExit: () => {
-          if (!popup || !popup?.[0] || !component) {
-            return;
-          }
-
-          popup?.[0].destroy();
+          popupEl?.remove();
+          popupEl = null;
           component?.destroy();
         },
       };
