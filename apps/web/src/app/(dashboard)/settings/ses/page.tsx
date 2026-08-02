@@ -117,10 +117,18 @@ export default function ByosSettingsPage() {
     });
   };
 
-  if (statusQuery.isLoading) {
+  if (statusQuery.isLoading && !statusQuery.isError) {
     return (
       <div className="flex justify-center py-20">
         <Spinner className="h-6 w-6" innerSvgClass="stroke-primary" />
+      </div>
+    );
+  }
+
+  if (statusQuery.isError) {
+    return (
+      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+        {statusQuery.error?.message ?? "Failed to load BYOS status."}
       </div>
     );
   }

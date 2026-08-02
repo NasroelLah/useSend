@@ -350,10 +350,20 @@ export default function AdminPlansPage() {
 
   const isPending = saveMutation.isPending || resetMutation.isPending;
 
-  if (configQuery.isLoading) {
+  if (configQuery.isLoading && !configQuery.isError) {
     return (
       <div className="flex items-center justify-center py-16">
         <Spinner className="h-6 w-6" innerSvgClass="stroke-primary" />
+      </div>
+    );
+  }
+
+  if (configQuery.isError) {
+    return (
+      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+        {configQuery.error?.message?.includes("UNAUTHORIZED")
+          ? "You do not have permission to manage plan configuration. Ensure ADMIN_EMAIL matches your account."
+          : (configQuery.error?.message ?? "Failed to load plan configuration.")}
       </div>
     );
   }
