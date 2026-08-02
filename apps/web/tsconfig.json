@@ -4,8 +4,7 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"],
-      "@prisma/client": ["./src/generated/prisma"],
-      "@prisma/client/runtime/library": ["./src/generated/prisma/runtime/library"]
+      "@prisma/client": ["./src/generated/prisma"]
     },
     "plugins": [
       {
@@ -23,5 +22,5 @@
     ".next/types/**/*.ts",
     ".eslintrc.cjs"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "src/generated"]
 }
