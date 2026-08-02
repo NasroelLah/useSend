@@ -33,7 +33,7 @@ import { toast } from "@usesend/ui/src/toaster";
 
 const editApiKeySchema = z.object({
   name: z
-    .string({ required_error: "Name is required" })
+    .string({ message: "Name is required" })
     .min(1, { message: "Name is required" }),
   domainId: z.string().optional(),
 });

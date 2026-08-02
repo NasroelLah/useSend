@@ -30,13 +30,13 @@ import { GENERIC_AUTH_ERROR_MESSAGE, getAuthErrorMessage } from "./auth-error";
 
 const emailSchema = z.object({
   email: z
-    .string({ required_error: "Email is required" })
+    .string({ message: "Email is required" })
     .email({ message: "Invalid email" }),
 });
 
 const otpSchema = z.object({
   otp: z
-    .string({ required_error: "OTP is required" })
+    .string({ message: "OTP is required" })
     .length(5, { message: "Invalid OTP" }),
 });
 

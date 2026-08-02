@@ -1,6 +1,6 @@
 import { EmailRenderer } from "@usesend/email-editor/src/renderer";
 import { db } from "../db";
-import { createHash } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { env } from "~/env";
 import {
   Campaign,
@@ -537,22 +537,42 @@ export async function resumeCampaign({
   return { ok: true };
 }
 
+/**
+ * Unsubscribe links are authenticated with HMAC-SHA256 keyed by a dedicated
+ * secret (falling back to NEXTAUTH_SECRET for existing deployments). This is
+ * the correct MAC primitive — unlike the previous raw sha256(secret-suffix)
+ * construction — and keeps the unsubscribe secret separate from the session
+ * secret so a leak of one doesn't compromise the other.
+ */
+function getUnsubSecret(): string {
+  return env.UNSUBSCRIBE_SECRET ?? env.NEXTAUTH_SECRET ?? "usesend-dev-unsub";
+}
+
+function computeUnsubHash(unsubId: string): string {
+  return createHmac("sha256", getUnsubSecret())
+    .update(unsubId, "utf8")
+    .digest("hex");
+}
+
+function safeEqualHex(a: string, b: string): boolean {
+  const bufA = Buffer.from(a, "hex");
+  const bufB = Buffer.from(b, "hex");
+  if (bufA.length !== bufB.length) {
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
+}
+
 export function createUnsubUrl(contactId: string, campaignId: string) {
   const unsubId = `${contactId}-${campaignId}`;
-
-  const unsubHash = createHash("sha256")
-    .update(`${unsubId}-${env.NEXTAUTH_SECRET}`)
-    .digest("hex");
+  const unsubHash = computeUnsubHash(unsubId);
 
   return `${env.NEXTAUTH_URL}/unsubscribe?id=${unsubId}&hash=${unsubHash}`;
 }
 
 export function createOneClickUnsubUrl(contactId: string, campaignId: string) {
   const unsubId = `${contactId}-${campaignId}`;
-
-  const unsubHash = createHash("sha256")
-    .update(`${unsubId}-${env.NEXTAUTH_SECRET}`)
-    .digest("hex");
+  const unsubHash = computeUnsubHash(unsubId);
 
   return `${env.NEXTAUTH_URL}/api/unsubscribe-oneclick?id=${unsubId}&hash=${unsubHash}`;
 }
@@ -564,12 +584,9 @@ function verifyUnsubscribeLink(id: string, hash: string) {
     throw new Error("Invalid unsubscribe link");
   }
 
-  // Verify the hash
-  const expectedHash = createHash("sha256")
-    .update(`${id}-${env.NEXTAUTH_SECRET}`)
-    .digest("hex");
+  const expectedHash = computeUnsubHash(id);
 
-  if (hash !== expectedHash) {
+  if (!safeEqualHex(hash, expectedHash)) {
     throw new Error("Invalid unsubscribe link");
   }
 
@@ -655,11 +672,9 @@ export async function subscribeContact(id: string, hash: string) {
   }
 
   // Verify the hash
-  const expectedHash = createHash("sha256")
-    .update(`${id}-${env.NEXTAUTH_SECRET}`)
-    .digest("hex");
+  const expectedHash = computeUnsubHash(id);
 
-  if (hash !== expectedHash) {
+  if (!safeEqualHex(hash, expectedHash)) {
     throw new Error("Invalid subscribe link");
   }
 

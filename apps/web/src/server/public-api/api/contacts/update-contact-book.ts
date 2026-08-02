@@ -24,7 +24,7 @@ const route = createRoute({
           schema: z.object({
             name: z.string().min(1).optional(),
             emoji: z.string().optional(),
-            properties: z.record(z.string()).optional(),
+            properties: z.record(z.string(), z.string()).optional(),
             doubleOptInEnabled: z.boolean().optional(),
             doubleOptInFrom: z.string().nullable().optional(),
             doubleOptInSubject: z.string().optional(),

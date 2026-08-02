@@ -75,6 +75,8 @@ export const env = createEnv({
         .string()
         .optional()
         .transform((str) => (str ? parseInt(str, 10) : undefined)),
+    API_KEY_PEPPER: z.string().optional(),
+    UNSUBSCRIBE_SECRET: z.string().optional(),
   },
 
   /**
@@ -137,6 +139,8 @@ export const env = createEnv({
     SMTP_USER: process.env.SMTP_USER,
     CONTACT_BOOK_ID: process.env.CONTACT_BOOK_ID,
     EMAIL_CLEANUP_DAYS: process.env.EMAIL_CLEANUP_DAYS,
+    API_KEY_PEPPER: process.env.API_KEY_PEPPER,
+    UNSUBSCRIBE_SECRET: process.env.UNSUBSCRIBE_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

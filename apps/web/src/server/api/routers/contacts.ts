@@ -48,7 +48,7 @@ export const contactsRouter = createTRPCRouter({
       z.object({
         contactBookId: z.string(),
         name: z.string().optional(),
-        properties: z.record(z.string()).optional(),
+        properties: z.record(z.string(), z.string()).optional(),
         emoji: z.string().optional(),
         doubleOptInEnabled: z.boolean().optional(),
         doubleOptInFrom: z.string().nullable().optional(),
@@ -133,7 +133,7 @@ export const contactsRouter = createTRPCRouter({
               email: z.string(),
               firstName: z.string().optional(),
               lastName: z.string().optional(),
-              properties: z.record(z.string()).optional(),
+              properties: z.record(z.string(), z.string()).optional(),
               subscribed: z.boolean().optional(),
             }),
           )
@@ -155,7 +155,7 @@ export const contactsRouter = createTRPCRouter({
         email: z.string().optional(),
         firstName: z.string().optional(),
         lastName: z.string().optional(),
-        properties: z.record(z.string()).optional(),
+        properties: z.record(z.string(), z.string()).optional(),
         subscribed: z.boolean().optional(),
       }),
     )
