@@ -4,6 +4,12 @@ import { env } from "~/env";
 
 import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
 import { SesSettingsService } from "~/server/service/ses-settings-service";
+import { PlanConfigService } from "~/server/service/plan-config-service";
+import {
+  DEFAULT_PLAN_CONFIG,
+  planLimitKeys,
+  type PlanConfig,
+} from "~/lib/constants/plan-config";
 import { getAccount } from "~/server/aws/ses";
 import { db } from "~/server/db";
 import { sendMail } from "~/server/mailer";
@@ -64,6 +70,51 @@ const teamAdminSelection = {
 } as const;
 
 export const adminRouter = createTRPCRouter({
+  // ── Plan configuration ──────────────────────────────────────────────────
+  getPlanConfig: adminProcedure.query(async () => {
+    return PlanConfigService.getPlanConfig();
+  }),
+
+  setPlanConfig: adminProcedure
+    .input(
+      z.object({
+        FREE: z.object({
+          displayName: z.string().min(1),
+          price: z.object({
+            monthly: z.number().min(0),
+            currency: z.string().min(1).max(3),
+          }),
+          perks: z.array(z.string()),
+          limits: z.object(
+            Object.fromEntries(planLimitKeys.map((k) => [k, z.number().int()])),
+          ) as z.ZodObject<Record<(typeof planLimitKeys)[number], z.ZodNumber>>,
+          allowByos: z.boolean(),
+        }),
+        BASIC: z.object({
+          displayName: z.string().min(1),
+          price: z.object({
+            monthly: z.number().min(0),
+            currency: z.string().min(1).max(3),
+          }),
+          perks: z.array(z.string()),
+          limits: z.object(
+            Object.fromEntries(planLimitKeys.map((k) => [k, z.number().int()])),
+          ) as z.ZodObject<Record<(typeof planLimitKeys)[number], z.ZodNumber>>,
+          allowByos: z.boolean(),
+        }),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await PlanConfigService.setPlanConfig(input as PlanConfig);
+      return { ok: true };
+    }),
+
+  resetPlanConfig: adminProcedure.mutation(async () => {
+    await PlanConfigService.setPlanConfig(DEFAULT_PLAN_CONFIG);
+    return { ok: true };
+  }),
+
+  // ── SES ─────────────────────────────────────────────────────────────────
   getSesSettings: adminProcedure.query(async () => {
     return SesSettingsService.getAllSettings();
   }),

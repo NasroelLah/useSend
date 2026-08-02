@@ -9,6 +9,8 @@ import React from "react";
 import { StatusIndicator } from "./status-indicator";
 import { DomainStatusBadge } from "./domain-badge";
 import Spinner from "@usesend/ui/src/spinner";
+import { Globe } from "lucide-react";
+import { EmptyState } from "~/components/EmptyState";
 
 export default function DomainsList() {
   const domainsQuery = api.domain.domains.useQuery();
@@ -28,7 +30,12 @@ export default function DomainsList() {
             <DomainItem key={domain.id} domain={domain} />
           ))
         ) : (
-          <div className="text-center mt-20">No domains Added</div>
+          <EmptyState
+            icon={Globe}
+            title="No domains yet"
+            description="Add and verify a domain before you can send email from your own address."
+            className="rounded-lg border border-dashed"
+          />
         )}
       </div>
     </div>

@@ -44,11 +44,14 @@ async function getIdentityArn(domain: string, region: string) {
   return `arn:aws:ses:${region}:${accountId}:identity/${domain}`;
 }
 
-function getSesClient(region: string) {
+function getSesClient(
+  region: string,
+  credentialOptions?: ReturnType<typeof getAwsCredentialOptions>
+) {
   return new SESv2Client({
-    region: region,
+    region,
     endpoint: env.AWS_SES_ENDPOINT,
-    ...getAwsCredentialOptions(),
+    ...(credentialOptions ?? getAwsCredentialOptions()),
   });
 }
 
@@ -198,10 +201,11 @@ export async function sendRawEmail({
   emailId,
   sesTenantId,
   headers,
+  credentialOptions,
 }: Partial<EmailContent> & {
   region: string;
   configurationSetName: string;
-  attachments?: { filename: string; content: string }[]; // Made attachments optional
+  attachments?: { filename: string; content: string }[];
   cc?: string[];
   bcc?: string[];
   replyTo?: string[];
@@ -210,8 +214,9 @@ export async function sendRawEmail({
   isBulk?: boolean;
   inReplyToMessageId?: string;
   emailId?: string;
+  credentialOptions?: ReturnType<typeof getAwsCredentialOptions>;
 }) {
-  const sesClient = getSesClient(region);
+  const sesClient = getSesClient(region, credentialOptions);
 
   const { message: messageStream } = await nodemailer
     .createTransport({ streamTransport: true })

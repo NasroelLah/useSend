@@ -10,9 +10,11 @@ import {
 } from "@usesend/ui/src/table";
 import { api } from "~/trpc/react";
 import { useUrlState } from "~/hooks/useUrlState";
-import { Button } from "@usesend/ui/src/button";
-import Spinner from "@usesend/ui/src/spinner";
 import { formatDistanceToNow } from "date-fns";
+import { FileText } from "lucide-react";
+import { EmptyState } from "~/components/EmptyState";
+import { TableSkeleton } from "~/components/TableSkeleton";
+import { DataPagination } from "~/components/DataPagination";
 // import DeleteCampaign from "./delete-campaign";
 import Link from "next/link";
 // import DuplicateCampaign from "./duplicate-campaign";
@@ -30,6 +32,8 @@ export default function TemplateList() {
     page: pageNumber,
   });
 
+  const totalCount = templateQuery.data?.totalCount ?? 0;
+
   return (
     <div className="mt-10 flex flex-col gap-4">
       <div className="flex flex-col rounded-xl border border-border shadow">
@@ -44,14 +48,10 @@ export default function TemplateList() {
           </TableHeader>
           <TableBody>
             {templateQuery.isLoading ? (
-              <TableRow className="h-32">
-                <TableCell colSpan={4} className="text-center py-4">
-                  <Spinner
-                    className="w-6 h-6 mx-auto"
-                    innerSvgClass="stroke-primary"
-                  />
-                </TableCell>
-              </TableRow>
+              <TableSkeleton
+                columns={4}
+                columnWidths={["w-40", "w-[200px]", "w-24", "w-16"]}
+              />
             ) : templateQuery.data?.templates.length ? (
               templateQuery.data?.templates.map((template) => (
                 <TableRow key={template.id} className="">
@@ -83,31 +83,28 @@ export default function TemplateList() {
                 </TableRow>
               ))
             ) : (
-              <TableRow className="h-32">
-                <TableCell colSpan={4} className="text-center py-4">
-                  No templates found
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={4} className="p-0">
+                  <EmptyState
+                    icon={FileText}
+                    title="No templates yet"
+                    description="Create a reusable template to send consistent emails without rewriting the content each time."
+                  />
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex gap-4 justify-end">
-        <Button
-          size="sm"
-          onClick={() => setPage((pageNumber - 1).toString())}
-          disabled={pageNumber === 1}
-        >
-          Previous
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => setPage((pageNumber + 1).toString())}
-          disabled={pageNumber >= (templateQuery.data?.totalPage ?? 0)}
-        >
-          Next
-        </Button>
-      </div>
+      {totalCount > 0 ? (
+        <DataPagination
+          page={pageNumber}
+          limit={templateQuery.data?.limit ?? 10}
+          totalCount={totalCount}
+          isLoading={templateQuery.isLoading}
+          onPageChange={(next) => setPage(next.toString())}
+        />
+      ) : null}
     </div>
   );
 }

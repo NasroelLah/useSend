@@ -2,15 +2,17 @@
 
 import TemplateList from "./template-list";
 import CreateTemplate from "./create-template";
-import { H1 } from "@usesend/ui";
+import { PageHeader } from "~/components/PageHeader";
 
 export default function TemplatesPage() {
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <H1>Templates</H1>
+      <PageHeader
+        title="Templates"
+        description="Reusable email designs you can send from the API or a campaign."
+      >
         <CreateTemplate />
-      </div>
+      </PageHeader>
       <TemplateList />
     </div>
   );

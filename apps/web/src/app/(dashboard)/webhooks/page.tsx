@@ -1,16 +1,18 @@
 "use client";
 
-import { H1 } from "@usesend/ui";
 import { AddWebhook } from "./add-webhook";
 import { WebhookList } from "./webhook-list";
+import { PageHeader } from "~/components/PageHeader";
 
 export default function WebhooksPage() {
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <H1>Webhooks</H1>
+      <PageHeader
+        title="Webhooks"
+        description="Receive email events at your own endpoint as they happen."
+      >
         <AddWebhook />
-      </div>
+      </PageHeader>
       <WebhookList />
     </div>
   );

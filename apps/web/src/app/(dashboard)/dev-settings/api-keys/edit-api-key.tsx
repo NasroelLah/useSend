@@ -168,7 +168,7 @@ export function EditApiKeyDialog({
               />
               <div className="flex justify-end">
                 <Button
-                  className="w-[120px] hover:bg-gray-100 focus:bg-gray-100"
+                  className="w-[120px]"
                   type="submit"
                   disabled={updateApiKey.isPending}
                 >

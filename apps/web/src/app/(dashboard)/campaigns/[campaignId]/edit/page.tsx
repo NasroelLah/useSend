@@ -44,6 +44,7 @@ import {
 import ScheduleCampaign from "../../schedule-campaign";
 import { useRouter } from "next/navigation";
 import { getCampaignEditorVariables } from "~/lib/constants/campaign";
+import { Breadcrumbs } from "~/components/Breadcrumbs";
 
 const sendSchema = z.object({
   confirmation: z.string(),
@@ -179,12 +180,21 @@ function CampaignEditor({
   return (
     <div className="p-4 container mx-auto ">
       <div className="mx-auto">
-        <div className="mb-4 flex justify-between items-center w-[700px] mx-auto">
+        <div className="mx-auto mb-4 w-full sm:w-[700px]">
+          <Breadcrumbs
+            items={[
+              { label: "Campaigns", href: "/campaigns" },
+              { label: campaign.name || "Untitled campaign" },
+            ]}
+          />
+        </div>
+        <div className="mb-4 flex justify-between items-center w-full sm:w-[700px] mx-auto gap-4">
           <Input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className=" border-0 focus:ring-0 focus:outline-none px-0.5 w-[300px]"
+            aria-label="Campaign name"
+            className="border-0 focus:ring-0 focus:outline-none px-0.5 w-full sm:w-[300px]"
             disabled={isApiCampaign}
             readOnly={isApiCampaign}
             onBlur={() => {
@@ -440,7 +450,7 @@ function CampaignEditor({
             API.
           </p>
         ) : (
-          <div className=" rounded-lg bg-gray-50 w-[700px] mx-auto p-10">
+          <div className="mx-auto w-full rounded-lg border bg-muted/40 p-4 sm:w-[700px] sm:p-10">
             <div className="w-[600px] mx-auto">
               <Editor
                 key={`campaign-editor-${contactBookId ?? "none"}-${editorVariables.join(",")}`}

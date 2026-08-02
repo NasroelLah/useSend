@@ -86,7 +86,12 @@ export const campaignRouter = createTRPCRouter({
 
       const [campaigns, count] = await Promise.all([campaignsP, countP]);
 
-      return { campaigns, totalPage: Math.ceil(count / limit) };
+      return {
+        campaigns,
+        totalPage: Math.ceil(count / limit),
+        totalCount: count,
+        limit,
+      };
     }),
 
   createCampaign: teamProcedure

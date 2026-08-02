@@ -121,7 +121,12 @@ export const contactsRouter = createTRPCRouter({
 
       const [contacts, count] = await Promise.all([contactsP, countP]);
 
-      return { contacts, totalPage: Math.ceil(count / limit) };
+      return {
+        contacts,
+        totalPage: Math.ceil(count / limit),
+        totalCount: count,
+        limit,
+      };
     }),
 
   addContacts: contactBookProcedure

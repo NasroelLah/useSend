@@ -23,8 +23,14 @@ export function useUrlState(key: string, defaultValue: string | null = null) {
         ...qs.parse(window.location.search),
         [key]: newValue,
       };
+      // `stringifyUrl` renders a null value as a bare `&key`, leaving noise
+      // like `?page=1&search&status` behind when a filter is cleared. Drop the
+      // key entirely instead.
+      if (newValue === null || newValue === "") {
+        delete newQuery[key];
+      }
       const newUrl = qs.stringifyUrl({
-        url: window.location.href,
+        url: `${window.location.origin}${window.location.pathname}`,
         query: newQuery,
       });
       window.history.replaceState({}, "", newUrl);
