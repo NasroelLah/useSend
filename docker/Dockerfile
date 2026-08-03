@@ -50,6 +50,13 @@ COPY --from=builder /app/out/full/ .
 
 RUN pnpm turbo run build --filter=web...
 
+# Self-contained Prisma CLI for runtime migrations (npm flat install: no pnpm store symlinks,
+# CLI can resolve @prisma/config and its deps from a single node_modules)
+FROM base AS prisma-cli
+WORKDIR /tmp/prisma
+RUN npm install --no-audit --no-fund prisma@7.9.1
+
+
 FROM base AS runner
 WORKDIR /app
 
@@ -68,12 +75,12 @@ COPY --from=installer  /app/apps/web/public ./apps/web/public
 COPY --from=installer  /app/apps/web/prisma/schema.prisma ./apps/web/prisma/schema.prisma
 COPY --from=installer  /app/apps/web/prisma/migrations ./apps/web/prisma/migrations
 COPY --from=installer  /app/apps/web/prisma.config.ts ./apps/web/prisma.config.ts
-COPY --from=installer  /app/apps/web/node_modules/prisma ./node_modules/prisma
 COPY --from=installer  /app/apps/web/node_modules/@prisma ./node_modules/@prisma
 
-# Symlink the prisma binary
-RUN mkdir node_modules/.bin
-RUN ln -s /app/node_modules/prisma/build/index.js ./node_modules/.bin/prisma
+# Self-contained Prisma CLI tree merged into the app node_modules: both the CLI and prisma.config.ts
+# (import `prisma/config`) resolve their dependencies at runtime. Disjoint from the pnpm
+# @prisma/{client,adapter-pg} copy above (adds prisma, @prisma/config, @prisma/engines, ...).
+COPY --from=prisma-cli /tmp/prisma/node_modules ./node_modules
 
 # set this so it throws error where starting server
 ENV SKIP_ENV_VALIDATION="false"
