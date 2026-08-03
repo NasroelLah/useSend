@@ -75,8 +75,12 @@ export const env = createEnv({
         .string()
         .optional()
         .transform((str) => (str ? parseInt(str, 10) : undefined)),
-    API_KEY_PEPPER: z.string().optional(),
-    UNSUBSCRIBE_SECRET: z.string().optional(),
+    MAILER_PROVIDER: z.enum(["ses", "smtp", "usesend"]).optional(),
+    MAILER_SMTP_HOST: z.string().optional(),
+    MAILER_SMTP_PORT: z.string().optional(),
+    MAILER_SMTP_USER: z.string().optional(),
+    MAILER_SMTP_PASS: z.string().optional(),
+    MAILER_SMTP_SECURE: z.string().optional(),
   },
 
   /**
@@ -139,8 +143,12 @@ export const env = createEnv({
     SMTP_USER: process.env.SMTP_USER,
     CONTACT_BOOK_ID: process.env.CONTACT_BOOK_ID,
     EMAIL_CLEANUP_DAYS: process.env.EMAIL_CLEANUP_DAYS,
-    API_KEY_PEPPER: process.env.API_KEY_PEPPER,
-    UNSUBSCRIBE_SECRET: process.env.UNSUBSCRIBE_SECRET,
+    MAILER_PROVIDER: process.env.MAILER_PROVIDER,
+    MAILER_SMTP_HOST: process.env.MAILER_SMTP_HOST,
+    MAILER_SMTP_PORT: process.env.MAILER_SMTP_PORT,
+    MAILER_SMTP_USER: process.env.MAILER_SMTP_USER,
+    MAILER_SMTP_PASS: process.env.MAILER_SMTP_PASS,
+    MAILER_SMTP_SECURE: process.env.MAILER_SMTP_SECURE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

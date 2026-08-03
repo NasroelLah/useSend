@@ -44,10 +44,7 @@ async function getIdentityArn(domain: string, region: string) {
   return `arn:aws:ses:${region}:${accountId}:identity/${domain}`;
 }
 
-function getSesClient(
-  region: string,
-  credentialOptions?: ReturnType<typeof getAwsCredentialOptions>
-) {
+export function getSesClient(region: string) {
   return new SESv2Client({
     region,
     endpoint: env.AWS_SES_ENDPOINT,
