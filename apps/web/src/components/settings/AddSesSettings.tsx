@@ -221,7 +221,15 @@ const SesSettingsForm: React.FC<
             <FormItem>
               <FormLabel>Send Rate</FormLabel>
               <FormControl>
-                <Input placeholder="1" className="w-full" {...field} />
+                <Input
+                  type="number"
+                  placeholder="1"
+                  className="w-full"
+                  {...field}
+                  onChange={(event) =>
+                    field.onChange(event.target.valueAsNumber)
+                  }
+                />
               </FormControl>
               {formState.errors.sendRate ? (
                 <FormMessage />
@@ -240,7 +248,15 @@ const SesSettingsForm: React.FC<
             <FormItem>
               <FormLabel>Transactional Quota</FormLabel>
               <FormControl>
-                <Input placeholder="0" className="w-full" {...field} />
+                <Input
+                  type="number"
+                  placeholder="0"
+                  className="w-full"
+                  {...field}
+                  onChange={(event) =>
+                    field.onChange(event.target.valueAsNumber)
+                  }
+                />
               </FormControl>
               {formState.errors.transactionalQuota ? (
                 <FormMessage />
