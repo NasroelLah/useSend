@@ -36,7 +36,7 @@ const route = createRoute({
               lastName: z.string().optional().nullable(),
               email: z.string(),
               subscribed: z.boolean().default(true),
-              properties: z.record(z.string()),
+              properties: z.record(z.string(), z.string()),
               contactBookId: z.string(),
               createdAt: z.string(),
               updatedAt: z.string(),

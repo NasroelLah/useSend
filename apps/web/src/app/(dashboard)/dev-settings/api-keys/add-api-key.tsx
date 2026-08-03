@@ -36,7 +36,7 @@ import {
 } from "@usesend/ui/src/select";
 
 const apiKeySchema = z.object({
-  name: z.string({ required_error: "Name is required" }).min(1, {
+  name: z.string({ message: "Name is required" }).min(1, {
     message: "Name is required",
   }),
   domainId: z.string().optional(),
@@ -54,7 +54,7 @@ export default function AddApiKey() {
   const utils = api.useUtils();
 
   const apiKeyForm = useForm<z.infer<typeof apiKeySchema>>({
-    resolver: zodResolver(apiKeySchema),
+    resolver: zodResolver(apiKeySchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       name: "",
       domainId: "all",
@@ -230,7 +230,7 @@ export default function AddApiKey() {
                 />
                 <div className="flex justify-end">
                   <Button
-                    className=" w-[100px] hover:bg-gray-100 focus:bg-gray-100"
+                    className="w-[100px]"
                     type="submit"
                     disabled={createApiKeyMutation.isPending}
                   >

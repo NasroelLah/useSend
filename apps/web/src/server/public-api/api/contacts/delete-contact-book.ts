@@ -54,7 +54,8 @@ const route = createRoute({
 });
 
 function deleteContactBook(app: PublicAPIApp) {
-	app.openapi(route, async (c) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	app.openapi(route, async (c): Promise<any> => {
 		const team = c.var.team;
 		const contactBookId = c.req.valid("param").contactBookId;
 

@@ -1,14 +1,15 @@
 "use client";
 
 import EmailList from "./email-list";
-import { H1 } from "@usesend/ui";
+import { PageHeader } from "~/components/PageHeader";
 
 export default function EmailsPage() {
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <H1>Emails</H1>
-      </div>
+      <PageHeader
+        title="Emails"
+        description="Every email sent from your team, with delivery status and engagement."
+      />
       <EmailList />
     </div>
   );

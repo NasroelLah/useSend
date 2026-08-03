@@ -5,7 +5,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import Paragraph from "@tiptap/extension-paragraph";
 import Heading from "@tiptap/extension-heading";
 import CodeBlock from "@tiptap/extension-code-block";
-import TextStyle from "@tiptap/extension-text-style";
+import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
@@ -17,6 +17,7 @@ import { VariableExtension } from "./VariableExtension";
 import { getVariableSuggestions } from "../nodes/variable";
 import { UnsubscribeFooterExtension } from "./UnsubsubscribeExtension";
 import { ResizableImageExtension, UploadFn } from "./ImageExtension";
+export type { ResizableImageExtensionOptions } from "./ImageExtension";
 
 export function extensions({
   variables,

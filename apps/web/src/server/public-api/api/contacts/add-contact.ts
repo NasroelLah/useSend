@@ -27,7 +27,7 @@ const route = createRoute({
             email: z.string(),
             firstName: z.string().optional(),
             lastName: z.string().optional(),
-            properties: z.record(z.string()).optional(),
+            properties: z.record(z.string(), z.string()).optional(),
             subscribed: z.boolean().optional(),
           }),
         },

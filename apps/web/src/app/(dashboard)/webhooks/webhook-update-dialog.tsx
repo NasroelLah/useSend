@@ -43,10 +43,10 @@ const EVENT_TYPES_ENUM = z.enum(WebhookEvents);
 
 const editWebhookSchema = z.object({
   url: z
-    .string({ required_error: "URL is required" })
+    .string({ message: "URL is required" })
     .url("Please enter a valid URL"),
   eventTypes: z.array(EVENT_TYPES_ENUM, {
-    required_error: "Select at least one event",
+    message: "Select at least one event",
   }),
   domainIds: z.array(z.number().int().positive()),
 });
@@ -80,7 +80,7 @@ export function EditWebhookDialog({
     useState(initialHasAllEvents);
 
   const form = useForm<EditWebhookFormValues>({
-    resolver: zodResolver(editWebhookSchema),
+    resolver: zodResolver(editWebhookSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       url: webhook.url,
       eventTypes: initialHasAllEvents

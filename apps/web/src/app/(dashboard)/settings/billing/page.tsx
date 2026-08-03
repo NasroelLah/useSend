@@ -9,6 +9,8 @@ import { useTeam } from "~/providers/team-context";
 import { api } from "~/trpc/react";
 import { PlanDetails } from "~/components/payments/PlanDetails";
 import { UpgradeButton } from "~/components/payments/UpgradeButton";
+import { Input } from "@usesend/ui/src/input";
+import { PageHeader } from "~/components/PageHeader";
 
 export default function SettingsPage() {
   const { currentTeam, currentIsAdmin } = useTeam();
@@ -64,8 +66,13 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <Card className=" rounded-xl mt-10 p-8 px-8">
+    <div>
+      <PageHeader
+        as="h2"
+        title="Billing"
+        description="Manage your plan, payment method, and billing email."
+      />
+      <Card className="rounded-xl p-8">
         <PlanDetails />
         <div className="mt-4">
           {currentTeam?.plan !== "FREE" ? (
@@ -135,12 +142,12 @@ export default function SettingsPage() {
             {isEditingEmail ? (
               <div className="mt-2">
                 <div className="flex items-center gap-2">
-                  <input
+                  <Input
                     type="email"
                     value={billingEmail}
                     onChange={(e) => setBillingEmail(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Enter billing email"
+                    aria-label="Billing email"
                   />
                   <Button
                     onClick={handleSaveEmail}

@@ -113,22 +113,25 @@ export function getApp() {
     await next();
   });
 
-  // The OpenAPI documentation will be available at /doc
-  app.doc("/v1/doc", (c) => ({
-    openapi: "3.0.0",
-    info: {
-      version: "1.0.0",
-      title: "useSend API",
-    },
-    servers: [{ url: `${env.NEXTAUTH_URL}/api` }],
-  }));
+  // OpenAPI doc + Swagger UI are only exposed outside production. In
+  // production the full API surface stays undocumented to the public.
+  if (env.NODE_ENV !== "production") {
+    app.doc("/v1/doc", (c) => ({
+      openapi: "3.0.0",
+      info: {
+        version: "1.0.0",
+        title: "useSend API",
+      },
+      servers: [{ url: `${env.NEXTAUTH_URL}/api` }],
+    }));
 
-  app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
-    type: "http",
-    scheme: "bearer",
-  });
+    app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
+      type: "http",
+      scheme: "bearer",
+    });
 
-  app.get("/v1/ui", swaggerUI({ url: "/api/v1/doc" }));
+    app.get("/v1/ui", swaggerUI({ url: "/api/v1/doc" }));
+  }
 
   return app;
 }

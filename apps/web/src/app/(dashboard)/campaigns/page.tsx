@@ -2,15 +2,17 @@
 
 import CampaignList from "./campaign-list";
 import CreateCampaign from "./create-campaign";
-import { H1 } from "@usesend/ui";
+import { PageHeader } from "~/components/PageHeader";
 
-export default function ContactsPage() {
+export default function CampaignsPage() {
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <H1>Campaigns</H1>
+      <PageHeader
+        title="Campaigns"
+        description="Send bulk email to a contact book and track how it performed."
+      >
         <CreateCampaign />
-      </div>
+      </PageHeader>
       <CampaignList />
     </div>
   );

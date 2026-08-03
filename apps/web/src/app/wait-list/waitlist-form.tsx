@@ -36,7 +36,7 @@ const EMAIL_TYPE_LABEL: Record<(typeof WAITLIST_EMAIL_TYPES)[number], string> = 
 
 export function WaitListForm({ userEmail }: WaitListFormProps) {
   const form = useForm<WaitlistSubmissionInput>({
-    resolver: zodResolver(waitlistSubmissionSchema),
+    resolver: zodResolver(waitlistSubmissionSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       domain: "",
       emailTypes: [],

@@ -9,7 +9,7 @@ import { Input } from "@usesend/ui/src/input";
 import { Button } from "@usesend/ui/src/button";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { SuggestionOptions } from "@tiptap/suggestion";
-import tippy, { GetReferenceClientRect } from "tippy.js";
+import { computePosition, flip, shift } from "@floating-ui/dom";
 import { CheckIcon, TriangleAlert } from "lucide-react";
 
 export interface VariableOptions {
@@ -100,7 +100,22 @@ export function getVariableSuggestions(
 
     render: () => {
       let component: ReactRenderer<any>;
-      let popup: InstanceType<any> | null = null;
+      let popupEl: HTMLDivElement | null = null;
+
+      function updatePosition(clientRect: (() => DOMRect | null) | null | undefined) {
+        if (!popupEl || !clientRect) return;
+        const rect = clientRect();
+        if (!rect) return;
+        const virtualEl = { getBoundingClientRect: () => rect };
+        computePosition(virtualEl as Element, popupEl, {
+          placement: "bottom-start",
+          middleware: [flip(), shift({ padding: 8 })],
+        }).then(({ x, y }) => {
+          if (!popupEl) return;
+          popupEl.style.left = `${x}px`;
+          popupEl.style.top = `${y}px`;
+        });
+      }
 
       return {
         onStart: (props) => {
@@ -108,58 +123,36 @@ export function getVariableSuggestions(
             props,
             editor: props.editor,
           });
-          component.updateProps({
-            ...props,
-            helperText,
-          });
+          component.updateProps({ ...props, helperText });
 
-          if (!props.clientRect) {
-            return;
-          }
+          if (!props.clientRect) return;
 
-          popup = tippy("body", {
-            getReferenceClientRect: props.clientRect as GetReferenceClientRect,
-            appendTo: () => document.body,
-            content: component.element,
-            showOnCreate: true,
-            interactive: true,
-            trigger: "manual",
-            placement: "bottom-start",
-          });
+          popupEl = document.createElement("div");
+          popupEl.style.position = "fixed";
+          popupEl.style.zIndex = "9999";
+          popupEl.appendChild(component.element);
+          document.body.appendChild(popupEl);
+          updatePosition(props.clientRect as () => DOMRect | null);
         },
 
         onUpdate(props) {
-          component.updateProps({
-            ...props,
-            helperText,
-          });
-
-          if (!props.clientRect) {
-            return;
-          }
-
-          popup?.[0]?.setProps({
-            getReferenceClientRect: props.clientRect as GetReferenceClientRect,
-          });
+          component.updateProps({ ...props, helperText });
+          if (!props.clientRect) return;
+          updatePosition(props.clientRect as () => DOMRect | null);
         },
 
         onKeyDown(props) {
           if (props.event.key === "Escape") {
-            popup?.[0].hide();
-
+            popupEl?.remove();
             return true;
           }
-
           return component.ref?.onKeyDown(props);
         },
 
         onExit() {
-          if (!popup || !popup?.[0] || !component) {
-            return;
-          }
-
-          popup?.[0].destroy();
-          component.destroy();
+          popupEl?.remove();
+          popupEl = null;
+          component?.destroy();
         },
       };
     },
@@ -198,7 +191,7 @@ export function VariableComponent(props: NodeViewProps) {
             onClick={(e) => {
               e.preventDefault();
               const pos = getPos();
-              editor.commands.setNodeSelection(pos);
+              if (pos !== undefined) editor.commands.setNodeSelection(pos);
             }}
           >
             <span className="">{`{{${name}}}`}</span>

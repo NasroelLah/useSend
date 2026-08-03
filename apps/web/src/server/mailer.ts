@@ -12,6 +12,7 @@ export async function sendSignUpEmail(
 
   if (env.NODE_ENV === "development") {
     logger.info({ email, url, token }, "Sending sign in email");
+    setOtp(email, token);
     return;
   }
 

@@ -51,7 +51,12 @@ export const templateRouter = createTRPCRouter({
 
       const [templates, count] = await Promise.all([templatesP, countP]);
 
-      return { templates, totalPage: Math.ceil(count / limit) };
+      return {
+        templates,
+        totalPage: Math.ceil(count / limit),
+        totalCount: count,
+        limit,
+      };
     }),
 
   createTemplate: teamProcedure

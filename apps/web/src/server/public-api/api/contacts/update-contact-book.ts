@@ -24,7 +24,7 @@ const route = createRoute({
           schema: z.object({
             name: z.string().min(1).optional(),
             emoji: z.string().optional(),
-            properties: z.record(z.string()).optional(),
+            properties: z.record(z.string(), z.string()).optional(),
             doubleOptInEnabled: z.boolean().optional(),
             doubleOptInFrom: z.string().nullable().optional(),
             doubleOptInSubject: z.string().optional(),
@@ -69,7 +69,8 @@ const route = createRoute({
 });
 
 function updateContactBook(app: PublicAPIApp) {
-  app.openapi(route, async (c) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  app.openapi(route, async (c): Promise<any> => {
     const team = c.var.team;
     const contactBookId = c.req.valid("param").contactBookId;
     const body = c.req.valid("json");

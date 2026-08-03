@@ -29,7 +29,7 @@ import { toast } from "@usesend/ui/src/toaster";
 import type { ReactNode } from "react";
 
 const contactsSchema = z.object({
-  contacts: z.string({ required_error: "Contacts are required" }).min(1, {
+  contacts: z.string({ message: "Contacts are required" }).min(1, {
     message: "Contacts are required",
   }),
 });
@@ -50,7 +50,7 @@ export default function AddContact({
   const addContactsMutation = api.contacts.addContacts.useMutation();
 
   const contactsForm = useForm<z.infer<typeof contactsSchema>>({
-    resolver: zodResolver(contactsSchema),
+    resolver: zodResolver(contactsSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       contacts: "",
     },

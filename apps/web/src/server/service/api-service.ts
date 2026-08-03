@@ -5,6 +5,38 @@ import { smallNanoid } from "../nanoid";
 import { createSecureHash, verifySecureHash } from "../crypto";
 import { logger } from "../logger/log";
 
+/**
+ * Short-lived in-memory cache of verified API keys. Verification is cheap
+ * now (HMAC), but this also avoids a DB round-trip per request. Keyed by the
+ * raw token; entries expire quickly so revocations propagate fast.
+ */
+const API_KEY_CACHE_TTL_MS = 30_000;
+const apiKeyCache = new Map<
+  string,
+  { value: Awaited<ReturnType<typeof lookupTeamAndApiKey>>; expires: number }
+>();
+
+function getCached(token: string) {
+  const entry = apiKeyCache.get(token);
+  if (!entry) return undefined;
+  if (entry.expires < Date.now()) {
+    apiKeyCache.delete(token);
+    return undefined;
+  }
+  return entry.value;
+}
+
+function setCached(
+  token: string,
+  value: Awaited<ReturnType<typeof lookupTeamAndApiKey>>
+) {
+  // Bound the cache to avoid unbounded growth from many distinct keys.
+  if (apiKeyCache.size > 1000) {
+    apiKeyCache.clear();
+  }
+  apiKeyCache.set(token, { value, expires: Date.now() + API_KEY_CACHE_TTL_MS });
+}
+
 export async function addApiKey({
   name,
   permission,
@@ -56,7 +88,7 @@ export async function addApiKey({
   }
 }
 
-export async function getTeamAndApiKey(apiKey: string) {
+async function lookupTeamAndApiKey(apiKey: string) {
   const [, clientId, token] = apiKey.split("_") as [string, string, string];
 
   const apiKeyRow = await db.apiKey.findUnique({
@@ -91,6 +123,20 @@ export async function getTeamAndApiKey(apiKey: string) {
     logger.error({ err: error }, "Error verifying API key");
     return null;
   }
+}
+
+export async function getTeamAndApiKey(apiKey: string) {
+  const cached = getCached(apiKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const result = await lookupTeamAndApiKey(apiKey);
+  // Only cache successful lookups; failures should re-hit the DB.
+  if (result) {
+    setCached(apiKey, result);
+  }
+  return result;
 }
 
 export async function updateApiKey({

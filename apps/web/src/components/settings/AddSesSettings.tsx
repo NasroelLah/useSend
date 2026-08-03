@@ -23,8 +23,8 @@ import { sesRegionSchema } from "~/lib/zod/ses-setting-schema";
 const FormSchema = z.object({
   region: sesRegionSchema,
   usesendUrl: z.string().url(),
-  sendRate: z.coerce.number(),
-  transactionalQuota: z.coerce.number().min(0).max(100),
+  sendRate: z.number(),
+  transactionalQuota: z.number().min(0).max(100),
 });
 
 type SesSettingsProps = {
@@ -91,7 +91,8 @@ const SesSettingsForm: React.FC<
   const utils = api.useUtils();
 
   const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(FormSchema) as any,
     defaultValues: {
       region: defaultRegion,
       usesendUrl: "",

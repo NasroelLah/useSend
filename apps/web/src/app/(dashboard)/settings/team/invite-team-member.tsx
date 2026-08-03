@@ -39,10 +39,10 @@ import { LimitReason } from "~/lib/constants/plans";
 
 const inviteTeamMemberSchema = z.object({
   email: z
-    .string({ required_error: "Email is required" })
+    .string({ message: "Email is required" })
     .email("Invalid email address"),
   role: z.enum(["ADMIN", "MEMBER"], {
-    required_error: "Please select a role",
+    message: "Please select a role",
   }),
 });
 
@@ -60,7 +60,7 @@ export default function InviteTeamMember() {
   const [open, setOpen] = useState(false);
 
   const form = useForm<FormData>({
-    resolver: zodResolver(inviteTeamMemberSchema),
+    resolver: zodResolver(inviteTeamMemberSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
       email: "",
       role: "MEMBER",

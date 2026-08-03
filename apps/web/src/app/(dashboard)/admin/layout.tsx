@@ -2,6 +2,7 @@
 
 import { SettingsNavButton } from "../dev-settings/settings-nav-button";
 import { isCloud } from "~/utils/common";
+import { H1 } from "@usesend/ui";
 
 export default function AdminLayout({
   children,
@@ -10,7 +11,7 @@ export default function AdminLayout({
 }) {
   return (
     <div>
-      <h1 className="text-lg font-bold">Admin</h1>
+      <H1>Admin</H1>
       <div className="mt-4 flex gap-4">
         <SettingsNavButton href="/admin">
           SES Configurations
@@ -28,6 +29,11 @@ export default function AdminLayout({
         {isCloud() ? (
           <SettingsNavButton href="/admin/waitlist">
             Waitlist
+          </SettingsNavButton>
+        ) : null}
+        {isCloud() ? (
+          <SettingsNavButton href="/admin/plans">
+            Plans
           </SettingsNavButton>
         ) : null}
       </div>
