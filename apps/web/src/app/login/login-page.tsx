@@ -106,22 +106,6 @@ export default function LoginPage({
 
       setEmailStatus("success");
 
-      // Dev mode: auto-fetch OTP from server
-      if (process.env.NODE_ENV === "development") {
-        try {
-          const res = await fetch(
-            `/api/dev/otp?email=${encodeURIComponent(values.email.toLowerCase())}`,
-          );
-          if (res.ok) {
-            const data = await res.json();
-            if (data.otp) {
-              otpForm.setValue("otp", data.otp);
-            }
-          }
-        } catch {
-          // Silently fail - user can still check logs
-        }
-      }
     } catch {
       setEmailStatus("idle");
       emailForm.setError(
