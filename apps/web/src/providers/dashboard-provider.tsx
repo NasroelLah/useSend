@@ -14,7 +14,10 @@ export const DashboardProvider = ({
   children: React.ReactNode;
 }) => {
   const { user, isLoaded } = useUser();
-  const isAdmin = !env.NEXT_PUBLIC_IS_CLOUD;
+  const authContextQuery = api.team.getAuthContext.useQuery(undefined, {
+    enabled: isLoaded && !!user,
+  });
+  const isAdmin = authContextQuery.data?.isAdmin ?? false;
   const { data: teams, status } = api.team.getTeams.useQuery(undefined, {
     enabled: isLoaded && !!user,
   });
@@ -25,6 +28,7 @@ export const DashboardProvider = ({
 
   if (
     !isLoaded ||
+    authContextQuery.status === "pending" ||
     status === "pending" ||
     (settingsStatus === "pending" && !env.NEXT_PUBLIC_IS_CLOUD)
   ) {

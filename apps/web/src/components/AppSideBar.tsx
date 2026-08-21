@@ -53,6 +53,7 @@ import {
 import { FeedbackDialog } from "./FeedbackDialog";
 import { TeamSwitcher } from "~/components/team/TeamSwitcher";
 import { env } from "~/env";
+import { api } from "~/trpc/react";
 
 // General items
 const generalItems = [
@@ -126,6 +127,8 @@ const settingsItems = [
 
 export function AppSidebar() {
   const { user } = useUser();
+  const { data: authContext } = api.team.getAuthContext.useQuery();
+  const isAdmin = authContext?.isAdmin ?? false;
   const showFeedback = isCloud();
 
   const pathname = usePathname();
@@ -138,7 +141,7 @@ export function AppSidebar() {
             <span className="text-lg font-semibold text-foreground font-mono">
               useSend
             </span>
-            <Badge variant="outline">Beta</Badge>
+            <Badge>Beta</Badge>
           </div>
         </SidebarGroupLabel>
         <TeamSwitcher />
@@ -206,11 +209,9 @@ export function AppSidebar() {
               {settingsItems.map((item) => {
                 const isActive = pathname?.startsWith(item.url);
 
-                // Special case for Admin item: show if user is admin OR if it's self-hosted
-                if (item.isAdmin && item.isSelfHosted) {
-                  if (isCloud() && !isSelfHosted()) {
-                    return null;
-                  }
+                if (item.isAdmin && !isAdmin) {
+                  return null;
+                }
                 } else {
                   // Regular admin-only items
                   if (item.isAdmin && isCloud()) {
