@@ -1,16 +1,14 @@
-import { getServerAuthSession } from "~/server/auth";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
+import { resolveClerkUser } from "~/server/clerk-user";
+
 export default async function Home() {
-  const session = await getServerAuthSession();
+  const { userId } = await auth();
+  if (!userId) redirect("/login");
 
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const user = await resolveClerkUser();
+  if (!user) redirect("/login");
 
-  if (session.user.isWaitlisted) {
-    redirect("/wait-list");
-  } else {
-    redirect("/dashboard");
-  }
+  redirect(user.isWaitlisted ? "/wait-list" : "/dashboard");
 }

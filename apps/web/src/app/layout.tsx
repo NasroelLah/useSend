@@ -7,6 +7,7 @@ import { Toaster } from "@usesend/ui/src/toaster";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,10 +35,12 @@ export default async function RootLayout({
       <body
         className={`font-sans ${inter.variable} ${jetbrainsMono.variable} app bg-sidebar-background`}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Toaster />
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-        </ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Toaster />
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

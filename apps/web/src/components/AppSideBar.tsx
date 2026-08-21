@@ -19,7 +19,7 @@ import {
   UserRoundX,
   Webhook,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { useClerk, useUser } from "@clerk/nextjs";
 
 import {
   Sidebar,
@@ -36,7 +36,6 @@ import {
 } from "@usesend/ui/src/sidebar";
 import Link from "next/link";
 import { MiniThemeSwitcher, ThemeSwitcher } from "./theme/ThemeSwitcher";
-import { useSession } from "next-auth/react";
 import { isCloud, isSelfHosted } from "~/utils/common";
 import { usePathname } from "next/navigation";
 import { Badge } from "@usesend/ui/src/badge";
@@ -126,7 +125,7 @@ const settingsItems = [
 ];
 
 export function AppSidebar() {
-  const { data: session } = useSession();
+  const { user } = useUser();
   const showFeedback = isCloud();
 
   const pathname = usePathname();
@@ -209,12 +208,12 @@ export function AppSidebar() {
 
                 // Special case for Admin item: show if user is admin OR if it's self-hosted
                 if (item.isAdmin && item.isSelfHosted) {
-                  if (!session?.user.isAdmin && !isSelfHosted()) {
+                  if (isCloud() && !isSelfHosted()) {
                     return null;
                   }
                 } else {
                   // Regular admin-only items
-                  if (item.isAdmin && !session?.user.isAdmin) {
+                  if (item.isAdmin && isCloud()) {
                     return null;
                   }
                   // Regular self-hosted-only items
@@ -269,12 +268,9 @@ export function AppSidebar() {
         {isSelfHosted() && <VersionInfo />}
         <NavUser
           user={{
-            name:
-              session?.user.name ||
-              session?.user.email?.split("@")[0] ||
-              "User",
-            email: session?.user.email || "",
-            avatar: session?.user.image || "",
+            name: user?.fullName || user?.username || "User",
+            email: user?.primaryEmailAddress?.emailAddress || "",
+            avatar: user?.imageUrl || "",
           }}
         />
       </SidebarFooter>
@@ -292,6 +288,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const { signOut } = useClerk();
 
   return (
     <SidebarMenu>

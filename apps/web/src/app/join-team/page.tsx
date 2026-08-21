@@ -1,7 +1,7 @@
 import JoinTeam from "~/components/team/JoinTeam";
 import { Suspense } from "react";
 import Spinner from "@usesend/ui/src/spinner";
-import { getServerAuthSession } from "~/server/auth";
+import { resolveClerkUser } from "~/server/clerk-user";
 import { redirect } from "next/navigation";
 
 export default async function CreateTeam({
@@ -9,12 +9,13 @@ export default async function CreateTeam({
 }: {
   searchParams: Promise<{ inviteId?: string }>;
 }) {
-  const session = await getServerAuthSession();
+  const user = await resolveClerkUser();
   const params = await searchParams;
 
-  if (!session) {
+  if (!user) {
     const inviteId = params?.inviteId;
-    redirect(`/login${inviteId ? `?inviteId=${inviteId}` : ""}`);
+    const next = `/join-team${inviteId ? `?inviteId=${encodeURIComponent(inviteId)}` : ""}`;
+    redirect(`/login?redirect_url=${encodeURIComponent(next)}`);
   }
 
   return (
