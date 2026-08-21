@@ -38,7 +38,6 @@ import Link from "next/link";
 import { MiniThemeSwitcher, ThemeSwitcher } from "./theme/ThemeSwitcher";
 import { isCloud, isSelfHosted } from "~/utils/common";
 import { usePathname } from "next/navigation";
-import { Badge } from "@usesend/ui/src/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@usesend/ui/src/avatar";
 import Image from "next/image";
 import {
@@ -141,7 +140,9 @@ export function AppSidebar() {
             <span className="text-lg font-semibold text-foreground font-mono">
               useSend
             </span>
-            <Badge>Beta</Badge>
+            <span className="rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">
+              Beta
+            </span>
           </div>
         </SidebarGroupLabel>
         <TeamSwitcher />
@@ -212,15 +213,8 @@ export function AppSidebar() {
                 if (item.isAdmin && !isAdmin) {
                   return null;
                 }
-                } else {
-                  // Regular admin-only items
-                  if (item.isAdmin && isCloud()) {
-                    return null;
-                  }
-                  // Regular self-hosted-only items
-                  if (item.isSelfHosted && !isSelfHosted()) {
-                    return null;
-                  }
+                if (item.isSelfHosted && !isSelfHosted()) {
+                  return null;
                 }
                 return (
                   <SidebarMenuItem key={item.title}>
