@@ -33,6 +33,10 @@ const AWS_REGIONS = [
 ] as const;
 
 export const teamRouter = createTRPCRouter({
+  getAuthContext: protectedProcedure.query(({ ctx }) => ({
+    isAdmin: ctx.session.user.isAdmin,
+  })),
+
   createTeam: protectedProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ ctx, input }) => {

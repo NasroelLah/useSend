@@ -23,7 +23,7 @@ import {
   type WaitlistSubmissionInput,
 } from "./schema";
 import { api } from "~/trpc/react";
-import { signOut } from "next-auth/react";
+import { useClerk } from "@clerk/nextjs";
 
 type WaitListFormProps = {
   userEmail: string;
@@ -35,6 +35,7 @@ const EMAIL_TYPE_LABEL: Record<(typeof WAITLIST_EMAIL_TYPES)[number], string> = 
 };
 
 export function WaitListForm({ userEmail }: WaitListFormProps) {
+  const { signOut } = useClerk();
   const form = useForm<WaitlistSubmissionInput>({
     resolver: zodResolver(waitlistSubmissionSchema) as any,  // eslint-disable-line @typescript-eslint/no-explicit-any,
     defaultValues: {
@@ -63,7 +64,7 @@ export function WaitListForm({ userEmail }: WaitListFormProps) {
 
   const handleLogout = () => {
     setIsLoggingOut(true);
-    signOut({ callbackUrl: "/login" }).catch(() => {
+    signOut({ redirectUrl: "/login" }).catch(() => {
       setIsLoggingOut(false);
       toast.error("Unable to log out. Please try again.");
     });

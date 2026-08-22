@@ -21,8 +21,8 @@ vi.mock("~/server/db", () => ({
   db: mockDb,
 }));
 
-vi.mock("~/server/auth", () => ({
-  getServerAuthSession: vi.fn(),
+vi.mock("~/server/clerk-user", () => ({
+  resolveClerkUser: vi.fn(),
 }));
 
 vi.mock("~/server/service/campaign-service", () => ({}));

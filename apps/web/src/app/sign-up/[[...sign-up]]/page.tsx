@@ -1,12 +1,12 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 
-export default function LoginPage() {
+export default function SignUpPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
-      <SignIn
+      <SignUp
         routing="path"
-        path="/login"
-        signUpUrl="/sign-up"
+        path="/sign-up"
+        signInUrl="/login"
         fallbackRedirectUrl="/"
       />
     </main>

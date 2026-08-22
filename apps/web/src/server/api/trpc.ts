@@ -12,7 +12,7 @@ import superjson from "superjson";
 import { z, ZodError } from "zod";
 import { env } from "~/env";
 
-import { getServerAuthSession } from "~/server/auth";
+import { resolveClerkUser } from "~/server/clerk-user";
 import { db } from "~/server/db";
 import { getChildLogger, logger, withLogger } from "../logger/log";
 import { getActiveTeamIdFromHeaders } from "~/utils/active-team";
@@ -31,7 +31,15 @@ import { randomUUID } from "crypto";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await getServerAuthSession();
+  const user = await resolveClerkUser();
+  const session = user
+    ? {
+        user: {
+          ...user,
+          isAdmin: !env.NEXT_PUBLIC_IS_CLOUD || user.email === env.ADMIN_EMAIL,
+        },
+      }
+    : null;
 
   return {
     db,

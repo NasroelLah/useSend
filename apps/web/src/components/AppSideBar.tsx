@@ -19,7 +19,7 @@ import {
   UserRoundX,
   Webhook,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { useClerk, useUser } from "@clerk/nextjs";
 
 import {
   Sidebar,
@@ -36,10 +36,8 @@ import {
 } from "@usesend/ui/src/sidebar";
 import Link from "next/link";
 import { MiniThemeSwitcher, ThemeSwitcher } from "./theme/ThemeSwitcher";
-import { useSession } from "next-auth/react";
 import { isCloud, isSelfHosted } from "~/utils/common";
 import { usePathname } from "next/navigation";
-import { Badge } from "@usesend/ui/src/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@usesend/ui/src/avatar";
 import Image from "next/image";
 import {
@@ -54,6 +52,7 @@ import {
 import { FeedbackDialog } from "./FeedbackDialog";
 import { TeamSwitcher } from "~/components/team/TeamSwitcher";
 import { env } from "~/env";
+import { api } from "~/trpc/react";
 
 // General items
 const generalItems = [
@@ -126,7 +125,9 @@ const settingsItems = [
 ];
 
 export function AppSidebar() {
-  const { data: session } = useSession();
+  const { user } = useUser();
+  const { data: authContext } = api.team.getAuthContext.useQuery();
+  const isAdmin = authContext?.isAdmin ?? false;
   const showFeedback = isCloud();
 
   const pathname = usePathname();
@@ -139,7 +140,9 @@ export function AppSidebar() {
             <span className="text-lg font-semibold text-foreground font-mono">
               useSend
             </span>
-            <Badge variant="outline">Beta</Badge>
+            <span className="rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground">
+              Beta
+            </span>
           </div>
         </SidebarGroupLabel>
         <TeamSwitcher />
@@ -207,20 +210,11 @@ export function AppSidebar() {
               {settingsItems.map((item) => {
                 const isActive = pathname?.startsWith(item.url);
 
-                // Special case for Admin item: show if user is admin OR if it's self-hosted
-                if (item.isAdmin && item.isSelfHosted) {
-                  if (!session?.user.isAdmin && !isSelfHosted()) {
-                    return null;
-                  }
-                } else {
-                  // Regular admin-only items
-                  if (item.isAdmin && !session?.user.isAdmin) {
-                    return null;
-                  }
-                  // Regular self-hosted-only items
-                  if (item.isSelfHosted && !isSelfHosted()) {
-                    return null;
-                  }
+                if (item.isAdmin && !isAdmin) {
+                  return null;
+                }
+                if (item.isSelfHosted && !isSelfHosted()) {
+                  return null;
                 }
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -269,12 +263,9 @@ export function AppSidebar() {
         {isSelfHosted() && <VersionInfo />}
         <NavUser
           user={{
-            name:
-              session?.user.name ||
-              session?.user.email?.split("@")[0] ||
-              "User",
-            email: session?.user.email || "",
-            avatar: session?.user.image || "",
+            name: user?.fullName || user?.username || "User",
+            email: user?.primaryEmailAddress?.emailAddress || "",
+            avatar: user?.imageUrl || "",
           }}
         />
       </SidebarFooter>
@@ -292,6 +283,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const { signOut } = useClerk();
 
   return (
     <SidebarMenu>

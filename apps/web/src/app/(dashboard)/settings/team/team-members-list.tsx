@@ -18,11 +18,12 @@ import { DeleteTeamMember } from "./delete-team-member";
 import { ResendTeamInvite } from "./resend-team-invite";
 import { DeleteTeamInvite } from "./delete-team-invite";
 import { useTeam } from "~/providers/team-context";
-import { useSession } from "next-auth/react";
+import { useUser } from "@clerk/nextjs";
 
 export default function TeamMembersList() {
   const { currentIsAdmin } = useTeam();
-  const { data: session } = useSession();
+  const { user } = useUser();
+  const currentEmail = user?.primaryEmailAddress?.emailAddress;
   const teamUsersQuery = api.team.getTeamUsers.useQuery();
   const teamInvitesQuery = api.team.getTeamInvites.useQuery();
 
@@ -86,14 +87,14 @@ export default function TeamMembersList() {
                           }}
                         />
                       ) : null}
-                      {currentIsAdmin || session?.user.id == member.userId ? (
+                      {currentIsAdmin || currentEmail === member.user?.email ? (
                         <DeleteTeamMember
                           teamUser={{
                             userId: String(member.userId),
                             role: member.role,
                             email: member.user?.email || "Unknown user",
                           }}
-                          self={session?.user.id == member.userId}
+                          self={currentEmail === member.user?.email}
                         />
                       ) : null}
                     </div>

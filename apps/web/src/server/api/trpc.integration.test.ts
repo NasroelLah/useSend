@@ -1,8 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("~/server/auth", () => ({
-  getServerAuthSession: vi.fn(),
+vi.mock("~/server/clerk-user", () => ({
+  resolveClerkUser: vi.fn(),
 }));
 
 import {

@@ -1,17 +1,12 @@
 import { Rocket } from "lucide-react";
-
-import { getServerAuthSession } from "~/server/auth";
-import { WaitListForm } from "./waitlist-form";
 import { redirect } from "next/navigation";
 
+import { resolveClerkUser } from "~/server/clerk-user";
+import { WaitListForm } from "./waitlist-form";
+
 export default async function WaitListPage() {
-  const session = await getServerAuthSession();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
-
-  const userEmail = session.user.email ?? "";
+  const user = await resolveClerkUser();
+  if (!user) redirect("/login");
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-8">
@@ -21,14 +16,13 @@ export default async function WaitListPage() {
             <Rocket className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="text-2xl font-semibold">You're on the waitlist</h1>
+            <h1 className="text-2xl font-semibold">You&apos;re on the waitlist</h1>
             <p className="text-sm text-muted-foreground">
               Share a bit more context so we can prioritize your access.
             </p>
           </div>
         </div>
-
-        <WaitListForm userEmail={userEmail} />
+        <WaitListForm userEmail={user.email ?? ""} />
       </div>
     </div>
   );
