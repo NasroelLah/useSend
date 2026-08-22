@@ -17,6 +17,7 @@ import { VariableExtension } from "./VariableExtension";
 import { getVariableSuggestions } from "../nodes/variable";
 import { UnsubscribeFooterExtension } from "./UnsubsubscribeExtension";
 import { ResizableImageExtension, UploadFn } from "./ImageExtension";
+export type { ResizableImageExtensionOptions } from "./ImageExtension";
 
 export function extensions({
   variables,

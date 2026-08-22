@@ -8,7 +8,7 @@ const uploadKey = new PluginKey("upload-image");
 
 export type UploadFn = (image: File) => Promise<string>;
 
-interface ResizableImageExtensionOptions {
+export interface ResizableImageExtensionOptions {
   uploadImage?: UploadFn;
 }
 
