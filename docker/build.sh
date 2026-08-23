@@ -14,11 +14,13 @@ GIT_SHA="$(git rev-parse HEAD)"
 echo "Building docker image for monorepo at $MONOREPO_ROOT"
 echo "App version: $APP_VERSION"
 echo "Git SHA: $GIT_SHA"
+echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: $NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
 
 docker build -f "$SCRIPT_DIR/Dockerfile" \
     --progress=plain \
     --build-arg APP_VERSION="$APP_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
+    --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" \
     -t "unsend/unsend:latest" \
     -t "unsend/unsend:$GIT_SHA" \
     -t "unsend/unsend:$APP_VERSION" \

@@ -40,10 +40,12 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 # Placed after install to preserve dependency cache when version changes
 ARG APP_VERSION=unknown
 ARG GIT_SHA=unknown
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 # Set version as environment variables for Next.js build
 ENV NEXT_PUBLIC_APP_VERSION=$APP_VERSION
 ENV NEXT_PUBLIC_GIT_SHA=$GIT_SHA
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 # Build the project
 COPY --from=builder /app/out/full/ .
