@@ -21,6 +21,9 @@ services:
       #########################################
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      CLERK_WEBHOOK_SIGNING_SECRET: ${CLERK_WEBHOOK_SIGNING_SECRET}
       # Email (magic link / OTP) dashboard login — enabled when FROM_EMAIL is set.
       # The address domain must match a verified sending domain configured in-app
       # (self-hosted delivers the OTP via the app's own SES pipeline).
